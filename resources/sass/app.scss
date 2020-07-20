@@ -1,0 +1,26 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+#master-div{
+    display: none;
+}
+
+#report-div{
+    display: none;
+}
+
+#entry-div{
+    display: none;
+}
+
+input[name=mobile]::-webkit-inner-spin-button, 
+input[name=mobile]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
