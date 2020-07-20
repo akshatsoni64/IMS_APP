@@ -3,9 +3,11 @@
         <thead>
         <tr>
             <th class="text-center" colspan=6>
-                <h2 style="padding:0px">{{ $title ?? 'Report Header' }}</h2>
+                <h2 style="padding:0px">
+                    {{ (Auth::check()) ? Auth::user() : 'Report - Header' }}
+                </h2>
                 <h4>
-                    Address: {{ $address ?? '' ?? 'Address Here' }}
+                    Address: {{ (Auth::check()) ? User::select('address')->where('name',Auth::user())->get() : 'Address - Here' }}
                 </h4>
             </th>
         </tr> 
@@ -33,8 +35,12 @@
             <thead>
                 <tr>
                     <th class="text-center" colspan=4>
-                        <h2 style="padding:0px"> {{ $title ?? 'Report Header' }} </h2>
-                        <h4> Address: {{ $address ?? 'Address Here' }} </h4>
+                        <h2 style="padding:0px">
+                            {{ (Auth::check()) ? Auth::user()->name : 'Report - Header' }}
+                        </h2>
+                        <h4>
+                            Address: {{ (Auth::check()) ? Auth::user()->address : 'Address - Here' }}
+                        </h4>
                     </th>
                 </tr>   
                 <tr>
