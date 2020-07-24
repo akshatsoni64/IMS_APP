@@ -37231,6 +37231,7 @@ var _require = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.j
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 $(document).ready(function () {
+  // $('[data-toggle="tooltip"]').tooltip();
   if (document.URL.search("edit") < 0) {
     $.ajax({
       url: '/fetch_id',
@@ -37243,6 +37244,33 @@ $(document).ready(function () {
     });
   }
 
+  $("#toggle-nav-div").click(function () {
+    var css = $("#nav-div").css("display");
+
+    if (css == "none") {
+      $("#nav-div").css("display", "block");
+      $("#toggle-nav-div").html("<i class='font-weight-bold fa fa-angle-left'></i>");
+    } else {
+      $("#nav-div").css("display", "none");
+      $("#toggle-nav-div").html("<i class='font-weight-bold fa fa-angle-right'></i>");
+    }
+  });
+  $("#toggle-add-form").click(function () {
+    var css = $("#form-div").css("display");
+    var title = $("#toggle-add-form").attr("title").split(" ");
+
+    if (css === "none") {
+      $("#form-div").css("display", "block");
+      $("#date-form-div").css("display", "none");
+      $("#toggle-add-form").html("<i class='fa fa-times text-danger'></i>");
+      $("#toggle-add-form").attr("title", "Close " + title[1] + " Form");
+    } else {
+      $("#form-div").css("display", "none");
+      $("#date-form-div").css("display", "block");
+      $("#toggle-add-form").html("<i class='fa fa-plus'></i>");
+      $("#toggle-add-form").attr("title", "Add " + title[1]);
+    }
+  });
   $("#cust_data").change(function () {
     var options = "<option selected disabled value=''>Product Code</option>";
     $.ajax({
@@ -37319,6 +37347,22 @@ $(document).ready(function () {
     $("#name-form").css('display', 'none');
     $("#real-form").css('display', 'block');
   });
+  $("#stock-customer").change(function () {
+    console.log('stock-customer' + $(this).val());
+    var val = $(this).val();
+    var options = "<option selected disabled value=''>Product Name</option>";
+    $.ajax({
+      url: '/stock-prod/' + val,
+      type: 'GET',
+      success: function success(data) {
+        data = $.parseJSON(data);
+        $.each(data, function (index, value) {
+          options += "<option value=" + value.id + ">" + value.name + "</option>";
+        });
+        $("#stock-products").html(options);
+      }
+    });
+  });
 });
 
 /***/ }),
@@ -37386,8 +37430,8 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /media/rootakshat/MONSTER/WebDev Stuff/Laravel/IMS/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /media/rootakshat/MONSTER/WebDev Stuff/Laravel/IMS/resources/sass/app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /media/rootakshat/MONSTER/WebDev Stuff/Laravel/IMS_APP/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /media/rootakshat/MONSTER/WebDev Stuff/Laravel/IMS_APP/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

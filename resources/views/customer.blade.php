@@ -2,31 +2,33 @@
 @extends('sections.navbar')
 
 @section('content')
-<div class="col-xl-10">
-    <div class="px-5">
-        <h1 align="center">        
-            @php( $route=Request::route()->getName() )
-            @php( $value=explode('.',$route) ) 
+@php( $route=Request::route()->getName() )
+@php( $value=explode('.',$route) ) 
+<div class="col">
+    <div class="px-3">
+        <!-- <h1 align="center">        
             {{ Str::title($value[0]) }}
             Page
-        </h1>        
-        @if($value[1]=="edit")
+        </h1> -->
+        @if($value[1] == "edit")
             <form action="{{ route('customer.update', $id) }}" method="POST" class="p-4 border" id="real-form">
             @method('PUT')            
-        @else        
-            <form action="#" id="name-form">
-                <label for="">Customer Name</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="name_name" placeholder="Customer Name" required autofocus>
-                    <div class="input-group-addon">
-                        <button type="submit" class="btn btn-outline-primary">&#10133;</button>
+        @else  
+            <div id="form-div" style="display:none">      
+                <form action="#" id="name-form">
+                    <label for="">Customer Name</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="name_name" placeholder="Customer Name" required autofocus>
+                        <div class="input-group-addon">
+                            <button type="submit" class="btn btn-outline-primary">&#10133;</button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
             <form action="{{ route('customer.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
         @endif
             @csrf
-            <div class="form-row mt-2">
+            <div class="form-row">
                 <div class="col-xl-2">
                     <label for="id">Customer ID*</label>
                     <input class="form-control" value="{{ $formdata->id ?? '' }}" id="cust_id" min=0 name="id" type="number" placeholder="Customer ID" required>
@@ -75,10 +77,10 @@
             </div>
             <div class="form-row mt-4">
                 <div class="col">
-                    <input class="btn btn-block btn-success" type="submit" value="Submit">
+                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-warning' : 'btn-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
                 </div>
                 <div class="col">
-                    <input class="btn btn-block btn-danger" type="reset" value="Reset">
+                    <a class="btn btn-block btn-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
                 </div>                
             </div>
         </form>

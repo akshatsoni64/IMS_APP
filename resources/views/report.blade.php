@@ -2,14 +2,14 @@
 @extends('sections.navbar')
 
 @section('content')
-<div class="col-xl-10">
+@php($route=Request::route()->getName())
+@php( $value=explode('.',$route) ) 
+<div class="col">
     <div class="px-5">
-        <h1 align="center">        
-            @php($route=Request::route()->getName())
-            @php( $value=explode('.',$route) ) 
+        <!-- <h1 align="center">        
             {{ Str::title($value[0]) }}
             Page
-        </h1>
+        </h1> -->
         
         <form action="#" target="_blank" method="" class="p-4 border" id="report-form">
             @csrf

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\{Stock, Customer, User, Product, Transaction};
 use Illuminate\Http\Request;
+use DB;
 
 class StockController extends Controller
 {
@@ -27,10 +28,27 @@ class StockController extends Controller
         $data = Stock::select('stocks.id','customers.name as CustomerName','products.name as ProductName','stocks.quantity as Quantity')
         ->join('customers','stocks.cid','=','customers.id')
         ->join('products','stocks.pid','=','products.id')
+        ->where('customers.active','1')
+        ->where('products.active','1')
         ->orderBy('id','desc')
         ->get();
         // dd($data);
-        $cust_data = Customer::select('id','mobile','name')->where('active','1')->get();
+        
+        $cust_data = DB::select('SELECT 
+            customers.id, customers.name, customers.mobile            
+        FROM stocks RIGHT OUTER JOIN customers 
+        ON customers.id = stocks.cid 
+        GROUP BY customers.id 
+        HAVING COUNT(pid) != (
+            SELECT 
+            COUNT(*) 
+            FROM products
+        )');
+        
+        // $cust_data = Customer::select('id','mobile','name')
+        // ->where('active','1')
+        // ->orderBy('id','desc')
+        // ->get();
         $prod_data = Product::select('id','name')->where('active','1')->get();
         return view('stock', ["data" => $data, "cust_data" => $cust_data, 'prod_data' => $prod_data]);
     }
@@ -82,6 +100,8 @@ class StockController extends Controller
         $data = Stock::select('stocks.id','customers.name as CustomerName','products.name as ProductName','stocks.quantity as Quantity')
         ->join('customers','stocks.cid','=','customers.id')
         ->join('products','stocks.pid','=','products.id')
+        ->where('customers.active','1')
+        ->where('products.active','1')
         ->orderBy('id','desc')
         ->get();
         $cust_data = Customer::select('id','mobile','name')->where('active','1')->get();

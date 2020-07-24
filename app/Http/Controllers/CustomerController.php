@@ -25,7 +25,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $data = Customer::select('id','name as CustomerName','mobile as MobileNumber','email as Email')
+        $data = Customer::select('id','name as CustomerName','org_name as OrganizationName','mobile as MobileNumber')
         ->where('active','1')
         ->orderBy('id','desc')
         ->get();
@@ -79,7 +79,7 @@ class CustomerController extends Controller
     public function edit($id)
     {
         error_log('Edit: '.$id);
-        $data = Customer::select('id','name as CustomerName','mobile as MobileNumber','email as Email')
+        $data = Customer::select('id','name as CustomerName','org_name as OrganizationName','mobile as MobileNumber')
         ->where('active','1')
         ->orderBy('id','desc')
         ->get();

@@ -1,4 +1,4 @@
-<table class="mt-4 table table-bordered">
+<table class="mt-4 table table-sm table-bordered">
     <thead>
     <!-- <thead data-toggle="collapse" data-target="#data-sec" style="cursor:pointer"> -->
         <tr class="text-center">
@@ -10,10 +10,10 @@
                     @endforeach
                     @break
                 @endforeach
+                <th colspan=2>Action</th>
             @else
-                <th>Column Name</th>
+                <th class="text-danger">No Data Found</th>
             @endif
-            <th colspan=2>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -29,7 +29,7 @@
                 @php( $value=explode('.',$route)[0] )                             
                 <td>
                     <button onclick="$('#edit-form{{ $row['id'] }}').submit();" class="btn btn-light">
-                        <i class="fa fa-edit text-primary" style="font-size:24px"></i>
+                        <i class="fa fa-edit text-primary" style="font-size:16px"></i>
                         <!-- &#128395 -->
                     </button>
                 </td>
@@ -38,7 +38,7 @@
                 <td>
                     <button id="{{ 'delete-'.$value.'-'.$row['id'] }}" class="delete_button btn btn-light" class="btn btn-light">
                         <!-- data-toggle="modal" data-target="#confirmation-form"  -->
-                        <i class="fa fa-trash-o text-danger" style="font-size:24px"></i>
+                        <i class="fa fa-trash-o text-danger" style="font-size:16px"></i>
                         <!-- &#10134 -->
                     </button>                    
                 </td>

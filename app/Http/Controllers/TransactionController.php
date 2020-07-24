@@ -23,17 +23,34 @@ class TransactionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = Transaction::select('transactions.id','customers.name as CustomerName','products.name as ProductName','transactions.t_date as TransactionDate','transactions.issue as Issue','transactions.receive as Receive')
-        ->join('customers','transactions.cid','=','customers.id')
-        ->join('products','transactions.pid','=','products.id')
-        ->orderBy('transactions.id','desc')
-        ->orderBy('transactions.t_date','desc')
-        ->get();
+        if($request->from_date == "" && $request->to_date == ""){
+
+            $data = Transaction::selectRaw('transactions.id, customers.name as CustomerName, products.name as ProductName, DATE_FORMAT(transactions.t_date, "%d-%m-%Y") as TransactionDate, transactions.issue as Issue, transactions.receive as Receive')
+            ->join('customers','transactions.cid','=','customers.id')
+            ->join('products','transactions.pid','=','products.id')
+            ->where('customers.active','1')
+            ->where('products.active','1')
+            ->whereBetween('transactions.t_date',[date("Y-m-d"),date("Y-m-d")])
+            ->orderBy('transactions.id','desc')
+            ->orderBy('transactions.t_date','desc')
+            ->get();
+        }
+        else{
+            $data = Transaction::selectRaw('transactions.id, customers.name as CustomerName, products.name as ProductName, DATE_FORMAT(transactions.t_date, "%d-%m-%Y") as TransactionDate, transactions.issue as Issue, transactions.receive as Receive')
+            ->join('customers','transactions.cid','=','customers.id')
+            ->join('products','transactions.pid','=','products.id')
+            ->where('customers.active','1')
+            ->where('products.active','1')
+            ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
+            ->orderBy('transactions.id','desc')
+            ->orderBy('transactions.t_date','desc')
+            ->get();
+        }
         $cust_data = Customer::select('id','mobile','name')->where('active','1')->get();
         $prod_data = Product::select('id','name')->where('active','1')->get();
-        return view('transaction', ["data" => $data, "cust_data" => $cust_data, 'prod_data' => $prod_data]);
+        return view('transaction', ["data" => $data, "from_date" => $request->from_date, "to_date" => $request->to_date, "cust_data" => $cust_data, 'prod_data' => $prod_data]);
     }
 
     /**
@@ -81,9 +98,11 @@ class TransactionController extends Controller
      */
     public function edit($id)
     {
-        $data = Transaction::select('transactions.id','customers.name as CustomerName','products.name as ProductName','transactions.t_date as TransactionDate' ,'transactions.issue as Issue','transactions.receive as Receive')
+        $data = Transaction::selectRaw('transactions.id, customers.name as CustomerName, products.name as ProductName, DATE_FORMAT(transactions.t_date, "%d-%m-%Y") as TransactionDate, transactions.issue as Issue, transactions.receive as Receive')
         ->join('customers','transactions.cid','=','customers.id')
         ->join('products','transactions.pid','=','products.id')
+        ->where('customers.active','1')
+        ->where('products.active','1')
         ->orderBy('transactions.id','desc')
         ->orderBy('transactions.t_date','desc')
         ->get();

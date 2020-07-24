@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @extends('sections.navbar')
 @section('content')
-    <div class="col-xl-10">
+    <div class="col">
         <div class="px-5">
             @if(count($transaction_data)>0)
                 <table class="mt-3 table table-bordered table-striped">

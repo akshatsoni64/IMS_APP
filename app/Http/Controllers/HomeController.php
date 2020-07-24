@@ -40,18 +40,31 @@ class HomeController extends Controller
         $from = $request->ft_date;
         $to = $request->tt_date;
         
-        $cust_data = Customer::select('id','name')->where('active','1');
+        $cust_data = Customer::select('customers.id as id','customers.name as name')->where('active','1');
+        $cust_data = $cust_data->join('transactions','customers.id','=','transactions.cid');
+        $cust_data = $cust_data->whereBetween('transactions.t_date',[$from, $to]);
         if($cust_id !== "all"){
-            $cust_data = $cust_data->where('id',$cust_id);
+            $cust_data = $cust_data->where('customers.id',$cust_id);
         }
+        $cust_data = $cust_data->distinct();
         $cust_data = $cust_data->get();
 
-        $prod_data = Product::select('id','name','quantity')->where('active','1');
+        $prod_data = Product::select('customers.id as cid','products.id as pid','products.name as pname','products.quantity as pq')->where('products.active','1');
+        $prod_data = $prod_data->join('transactions','products.id','=','transactions.pid');
+        $prod_data = $prod_data->join('customers','customers.id','=','transactions.cid');
         if($pcode !== "all"){
-            $prod_data = $prod_data->where('id',$pcode);
+            $prod_data = $prod_data->where('products.id',$pcode);
         }
-        $prod_data = $prod_data->get();
+        if($cust_id !== "all"){
+            $prod_data = $prod_data->where('transactions.cid',$cust_id);
+        }
+        else{
+        }
+        $prod_data = $prod_data->whereBetween('transactions.t_date',[$from, $to]);
+        // $prod_data = $prod_data->distinct();
+        $prod_data = $prod_data->distinct()->get();
         
+        // dd($prod_data);
         
         if($cust_id === "all"){
             if($pcode === "all"){
@@ -201,15 +214,72 @@ class HomeController extends Controller
         $transaction_data = DB::select($tquery, $tparam);
         $opening_data = DB::select($oquery, $oparam);
 
-        // dd($cust_data, $prod_data, $stock_data, $opening_data);
+        // dd($cust_data, $prod_data, $opening_data);
         // return $request;
        
         $data = ['from_date' => $from, 'to_date' => $to, 'cust_data' => $cust_data, 'prod_data' => $prod_data, 'transaction_data' => $transaction_data, 'opening_data' => $opening_data];
-        $pdf = PDF::loadView('partials._report_view', $data);
+        $pdf = PDF::loadView('reports._report_view', $data);
         $dom_pdf = $pdf->getDomPDF();
         $canvas = $dom_pdf ->get_canvas();
         $canvas->page_text(500,810, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
         return $pdf->download('report_pdf.pdf');
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function transaction_report(Request $request)
+    {
+        
+        $opening_data = DB::select("SELECT 
+            products.id AS pid, 
+            (products.quantity +  transaction_stock.s_stock) AS opening_stock
+        FROM products,
+        (
+            SELECT
+                pid, 
+                SUM(receive - issue) AS s_stock
+            FROM transactions
+            WHERE t_date >= ?
+            AND t_date < ?
+            GROUP BY pid
+        ) AS transaction_stock
+        WHERE products.id = transaction_stock.pid",[$request->from_date, $request->to_date]);
+        
+        // return $request;
+        // $opening_data = DB::select("SELECT products.id AS pid, (products.quantity + transaction_stock.s_stock) AS opening_stock FROM products, ( SELECT pid, SUM(receive - issue) AS s_stock FROM transactions WHERE t_date >= '2020-07-10' AND t_date < '2020-07-23' GROUP BY pid ) AS transaction_stock WHERE products.id = transaction_stock.pid");
+
+        if($request->pid == "all"){
+            $prod_data = Product::select('products.id','products.name')
+            ->distinct()
+            ->join('transactions','products.id','=','transactions.pid')
+            ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
+            ->get();
+        }
+        else{
+            $prod_data = Product::select('products.id','products.name')
+            ->distinct()
+            ->join('transactions','products.id','=','transactions.pid')
+            ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
+            ->where('products.id',$request->pid)
+            ->get();
+        }
+
+        $transaction_data = Transaction::select('transactions.t_date','customers.name','transactions.pid','transactions.issue','transactions.receive','transactions.vehicle_number')
+        ->join('customers','customers.id','=','transactions.cid')        
+        ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
+        ->get();
+        
+        // dd($transaction_data, $prod_data, $opening_data);
+       
+        $data = ["transaction_data" => $transaction_data, "prod_data" => $prod_data, "opening_data" => $opening_data];
+        $pdf = PDF::loadView('reports._report_transaction_view', $data);
+        $dom_pdf = $pdf->getDomPDF();
+        $canvas = $dom_pdf ->get_canvas();
+        $canvas->page_text(500,810, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
+        return $pdf->download('report_pdf.pdf');        
     }
 
     /**
@@ -235,12 +305,14 @@ class HomeController extends Controller
             $prod_data = Transaction::distinct()->select('customers.id','transactions.pid as id','products.name')
             ->join('products','products.id','=','transactions.pid')
             ->join('customers','customers.id','=','transactions.cid')
+            ->where('products.active','1')
             ->where('customers.id',$id)
             ->get();
         }
         else{
             $prod_data = Transaction::distinct()->select('transactions.pid as id','products.name')
             ->join('products','products.id','=','transactions.pid')
+            ->where('products.active','1')
             ->get();
         }
         error_log($prod_data);
@@ -254,7 +326,58 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $transaction_data = DB::select('select products.name, ( (products.quantity + transaction.open_receive) - transaction.open_issue ) as opening_stock, transaction.s_issue, transaction.s_receive, ( ((products.quantity + transaction.open_receive) - transaction.open_issue) + transaction.s_receive - transaction.s_issue ) as closing_stock from products, ( select s_open.pid, s_open.open_issue, s_open.open_receive, s_close.s_issue, s_close.s_receive from ( select pid as pid, sum(issue) as open_issue, sum(receive) as open_receive from transactions where t_date < DATE_FORMAT(NOW(), "%Y-%m-%d") GROUP by pid ) as s_open LEFT JOIN ( select pid as pidd, sum(issue) as s_issue, sum(receive) as s_receive from transactions where t_date = DATE_FORMAT(NOW(), "%Y-%m-%d") GROUP by pid ) as s_close ON s_open.pid = s_close.pidd ) as transaction where products.id = transaction.pid');
+        $transaction_data = DB::select('SELECT 
+            products.name, 
+            ( 
+                (
+                    products.quantity 
+                    + transaction.open_receive
+                )
+                - transaction.open_issue 
+            ) AS opening_stock, 
+            transaction.s_issue, 
+            transaction.s_receive, 
+            ( 
+                (
+                    (
+                        products.quantity 
+                        + transaction.open_receive) 
+                    - transaction.open_issue
+                ) 
+                + transaction.s_receive 
+                - transaction.s_issue 
+            ) AS closing_stock
+        FROM products, 
+        ( 
+            SELECT
+                s_open.pid, 
+                s_open.open_issue, 
+                s_open.open_receive, 
+                s_close.s_issue, 
+                s_close.s_receive 
+            FROM 
+            ( 
+                SELECT 
+                pid AS pid, 
+                SUM(issue) AS open_issue, 
+                SUM(receive) AS open_receive 
+                FROM transactions 
+                WHERE t_date <= DATE_FORMAT(NOW(), "%Y-%m-%d") 
+                GROUP BY pid 
+            ) AS s_open 
+            LEFT JOIN 
+            ( 
+                SELECT
+                pid AS pidd, 
+                SUM(issue) AS s_issue, 
+                SUM(receive) AS s_receive 
+                FROM transactions 
+                WHERE t_date = DATE_FORMAT(NOW(), "%Y-%m-%d") 
+                GROUP BY pid ) AS s_close 
+            ON s_open.pid = s_close.pidd 
+        ) AS transaction 
+        WHERE products.id = transaction.pid
+        AND products.active = 1');
         return view('home', ['transaction_data' => $transaction_data]);
     }
 
@@ -269,5 +392,27 @@ class HomeController extends Controller
         $prod_data = Product::count();
 
         return json_encode(array('cust_id' => $cust_data+1, 'prod_id' => $prod_data+1));
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function fetch_stock_products($id)
+    {
+        error_log("/stock-prod - ".$id);
+        $data = DB::select('SELECT 
+            DISTINCT products.name, products.id
+        FROM products
+        WHERE products.id NOT IN (
+            SELECT 
+                DISTINCT products.id
+            FROM stocks, products
+            WHERE stocks.pid = products.id
+            AND stocks.cid = ?
+        )
+        AND products.active = 1',[$id]);
+        return json_encode($data);
     }
 }

@@ -1,5 +1,5 @@
 @section('navbar')
-    <div class="pl-3 col-xl-2 border border-top-0 border-left-0 border-bottom-0">
+    <div id="nav-div" class="pl-3 col-xl-2 border border-top-0 border-left-0 border-bottom-0">
         <p align="center" class="font-weight-bold">Menu</p> 
 
         <div class="mb-3 card bg-dark text-white text-center">
@@ -39,7 +39,7 @@
         <div class="mb-3 card bg-dark text-white text-center">
             <h5 class="pt-2">                
                 <a class="text-white" href="{{ route('transaction.index') }}">
-                    Transaction
+                    Transactions
                 </a>
             </h5>
         </div>
@@ -47,7 +47,7 @@
         <div class="mb-3 card bg-dark text-center">
             <h5 class="pt-2">
                 <a class="text-white" href="{{ route('report') }}">
-                    Generate Report
+                    Report
                 </a>
             </h5>
         </div>
