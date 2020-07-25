@@ -15,7 +15,7 @@
             <form action="{{ route('product.update', $id) }}" method="POST" class="p-4 border" id="real-form">
             @method('PUT')            
         @else
-            <div id="form-div" style="display:none">
+            <!-- <div id="form-div" style="display:none">
                 <form action="#" id="name-form">
                     <label>Product Name</label>
                     <div class="input-group">
@@ -25,8 +25,8 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <form action="{{ route('product.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
+            </div> -->
+            <form id="form-div" style="display:none" action="{{ route('product.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
         @endif
             @csrf
             <div class="form-row">

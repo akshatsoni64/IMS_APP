@@ -74,7 +74,7 @@ class TransactionController extends Controller
         // return $request;
         unset($request['_token']);
         $res = Transaction::create($request->all());
-        error_log($res);
+        // error_log($res);
         
         return \Redirect::route('transaction.index');
     }
@@ -124,7 +124,7 @@ class TransactionController extends Controller
         unset($request['_token']);
         unset($request['_method']);
         $res = Transaction::find($id)->update($request->all());
-        error_log($res);
+        // error_log($res);
 
         return \Redirect::route('transaction.index');
     }
@@ -138,7 +138,7 @@ class TransactionController extends Controller
     public function destroy($id)
     {
         $res = Transaction::find($id)->delete();
-        error_log(response()->json($res));
+        // error_log(response()->json($res));
         
         // return \Redirect::route('transaction.index');
 

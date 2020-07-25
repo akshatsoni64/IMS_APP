@@ -51,7 +51,7 @@ class ProductController extends Controller
     {
         unset($request['_token']);
         $res = Product::create($request->all());
-        error_log($res);
+        // error_log($res);
 
         return \Redirect::route('product.index');
     }
@@ -75,7 +75,7 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        error_log('Edit: '.$id);
+        // error_log('Edit: '.$id);
         $data = Product::select('id','name as ProductName')
         ->where('active','1')
         ->orderBy('id','desc')
@@ -96,7 +96,7 @@ class ProductController extends Controller
         unset($request['_token']);
         unset($request['_method']);
         $res = Product::find($id)->update($request->all());
-        error_log($res);
+        // error_log($res);
 
         return \Redirect::route('product.index');
     }
@@ -111,7 +111,7 @@ class ProductController extends Controller
     {
         $res = Product::where('id',$id)->update(['active' => '0']); //Update the active status
         $res = Product::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
-        error_log(response()->json($res));
+        // error_log(response()->json($res));
 
         // return \Redirect::route('product.index');
     }

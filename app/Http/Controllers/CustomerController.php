@@ -29,7 +29,7 @@ class CustomerController extends Controller
         ->where('active','1')
         ->orderBy('id','desc')
         ->get();
-        error_log('Customer: '.$data);
+        // error_log('Customer: '.$data);
         return view('customer', ["data" => $data]);
     }
 
@@ -54,7 +54,7 @@ class CustomerController extends Controller
         unset($request['_token']);
         ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
         $res = Customer::create($request->all());
-        error_log($res);
+        // error_log($res);
 
         return \Redirect::route('customer.index');
     }
@@ -67,7 +67,7 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        error_log($customer);
+        // error_log($customer);
     }
 
     /**
@@ -78,7 +78,7 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-        error_log('Edit: '.$id);
+        // error_log('Edit: '.$id);
         $data = Customer::select('id','name as CustomerName','org_name as OrganizationName','mobile as MobileNumber')
         ->where('active','1')
         ->orderBy('id','desc')
@@ -100,7 +100,7 @@ class CustomerController extends Controller
         unset($request['_method']);
         ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
         $res = Customer::find($id)->update($request->all());
-        error_log($res);
+        // error_log($res);
 
         return \Redirect::route('customer.index');
     }
@@ -115,7 +115,7 @@ class CustomerController extends Controller
     {
         $res = Customer::where('id',$id)->update(['active' => '0']); //Update the active status
         $res = Customer::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
-        error_log('DELETE Customer'.$res);
+        // error_log('DELETE Customer'.$res);
         
         // return \Redirect::route('customer.index');
     }

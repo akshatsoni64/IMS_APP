@@ -1,3 +1,26 @@
+@if(count($transaction_data)<=0)
+    <table class="table table-bordered" border=1 align="center" style="width:100%; text-align: center;">
+        <thead>
+        <tr>
+            <th class="text-center" colspan=6>
+                <h2 style="padding:0px">
+                    {{ (Auth::check()) ? Auth::user()->name : 'Report - Header' }}
+                </h2>
+                <h4>
+                    Address: {{ (Auth::check()) ? Auth::user()->address : 'Address - Here' }}
+                </h4>
+            </th>
+        </tr> 
+        <tr>
+            <td colspan=6>
+                <h1 style="color:red">
+                    <b>No Data Found</b>
+                </h1>
+            </td>
+        </tr>
+        </thead>
+    </table>
+@else
 @foreach($prod_data as $prod)
     @if($loop->last)
         <table class="table table-bordered" border=1 align="center" style="width:100%; text-align: center;page-break-after: avoid;">    
@@ -63,3 +86,4 @@
     </tbody>
 </table>
 @endforeach
+@endif

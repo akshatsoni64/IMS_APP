@@ -33,15 +33,15 @@
                             <input class="form-control" value="{{ $to_date ?? date('Y-m-d') }}" name="to_date" type="date" title="To Date" required>
                         </div>
                         <div class="col">
-                            <div class="d-flex justify-content-center">
+                            <!-- <div class="d-flex justify-content-center"> -->
                                 <button class="btn btn-outline-primary" value="Load" type="submit">
-                                    Load
-                                    <!-- <i class="fa fa-refresh"></i> -->
+                                    <!-- Reload -->
+                                    <i class="fa fa-refresh"></i>
                                 </button>
                                 <!-- <button class="ml-5 btn btn-outline-primary" value="Print" formaction="{{ route('get_transactions_report') }}" type="submit">
                                     <i class="fa fa-print"></i>
                                 </button> -->
-                            </div>
+                            <!-- </div> -->
                         </div>
                     </div>
                 </form>
@@ -49,6 +49,10 @@
             @endif
                 @csrf
                 <div class="form-row">
+                    <div class="col">
+                        <label>Transaction Date*</label>
+                        <input class="form-control" value="{{ $formdata->t_date ?? date('Y-m-d') }}" name="t_date" type="date" title="Transaction Date" required>
+                    </div>
                     <div class="col">
                         <label>Customer Name*</label>
                         <select name="cid" class="custom-select" required autofocus>
@@ -66,6 +70,12 @@
                         </select>
                     </div>
                     <div class="col">
+                        <label>Vehicle Number</label>
+                        <input class="form-control" value="{{ $formdata->vehicle_number ?? '' }}" name="vehicle_number" type="text" placeholder="Vehicle Number">
+                    </div>
+                </div>
+                <div class="form-row mt-2">
+                    <div class="col">
                         <label>Product Code*</label>
                         <select name="pid" class="custom-select" required>
                             @if($value[1] == "edit")
@@ -81,23 +91,13 @@
                             @endif
                         </select>
                     </div>
-                </div>
-                <div class="form-row mt-2">
                     <div class="col">
                         <label>Issued Quantity*</label>
-                        <input class="form-control" value="{{ $formdata->issue ?? '' }}" name="issue" type="number" placeholder="Issued Quantity" max=999>
+                        <input class="form-control" value="{{ $formdata->issue ?? '' }}" name="issue" type="number" placeholder="Issued Quantity" max=999 required>
                     </div>
                     <div class="col">
                         <label>Received Quantity*</label>
-                        <input class="form-control" value="{{ $formdata->receive ?? '0' }}" name="receive" type="number" placeholder="Received Quantity" max=999>
-                    </div>
-                    <div class="col">
-                        <label>Transaction Date*</label>
-                        <input class="form-control" value="{{ $formdata->t_date ?? date('Y-m-d') }}" name="t_date" type="date" title="Transaction Date" required>
-                    </div>
-                    <div class="col">
-                        <label>Vehicle Number</label>
-                        <input class="form-control" value="{{ $formdata->vehicle_number ?? '' }}" name="vehicle_number" type="text" placeholder="Vehicle Number">
+                        <input class="form-control" value="{{ $formdata->receive ?? '0' }}" name="receive" type="number" placeholder="Received Quantity" max=999 required>
                     </div>
                 </div>
                 <div class="form-row mt-2">

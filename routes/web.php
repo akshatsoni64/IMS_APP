@@ -24,7 +24,7 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/fetch_id', 'HomeController@fetch_id')->name('getid');
 Route::get('/get_prod/{id}', 'HomeController@get_prod')->name('getprod');
-Route::get('/report', 'HomeController@report')->name('report');
+Route::any('/report', 'HomeController@report')->name('report');
 Route::get('/export-pdf', 'HomeController@export_pdf')->name('getpdf');
 Route::get('/transaction_report','HomeController@transaction_report')->name('get_transactions_report');
 Route::get('/stock-prod/{id}','HomeController@fetch_stock_products')->name('get_s_prod');

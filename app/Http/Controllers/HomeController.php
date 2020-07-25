@@ -22,19 +22,11 @@ class HomeController extends Controller
         $this->middleware('auth');
         // $this->user_address = (Auth::check()) ? User::select('address')->where('name',Auth::user())->get() : "";
     }
-
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function export_pdf(Request $request)
-    {
-        error_log('cust_id - '.$request->cust_id);
-        error_log('p_name - '.$request->p_name);
-        error_log('ft_date - '.$request->ft_date);
-        error_log('tt_date - '.$request->tt_date);
-        
+    public function report_data($request){        
+        // error_log("FD: ".$request->ft_date);
+        // error_log("TD: ".$request->tt_date);
+        // error_log("C: ".$request->cust_id);
+        // error_log("P: ".$request->p_name);
         $cust_id = $request->cust_id;
         $pcode = $request->p_name;
         $from = $request->ft_date;
@@ -43,8 +35,11 @@ class HomeController extends Controller
         $cust_data = Customer::select('customers.id as id','customers.name as name')->where('active','1');
         $cust_data = $cust_data->join('transactions','customers.id','=','transactions.cid');
         $cust_data = $cust_data->whereBetween('transactions.t_date',[$from, $to]);
-        if($cust_id !== "all"){
+        if($cust_id != "all"){
             $cust_data = $cust_data->where('customers.id',$cust_id);
+        }
+        if($pcode != "all"){
+            $cust_data = $cust_data->where('transactions.pid',$pcode);
         }
         $cust_data = $cust_data->distinct();
         $cust_data = $cust_data->get();
@@ -64,7 +59,7 @@ class HomeController extends Controller
         // $prod_data = $prod_data->distinct();
         $prod_data = $prod_data->distinct()->get();
         
-        // dd($prod_data);
+        // dd($cust_data);
         
         if($cust_id === "all"){
             if($pcode === "all"){
@@ -214,15 +209,56 @@ class HomeController extends Controller
         $transaction_data = DB::select($tquery, $tparam);
         $opening_data = DB::select($oquery, $oparam);
 
-        // dd($cust_data, $prod_data, $opening_data);
-        // return $request;
+        return ['from_date' => $from, 'to_date' => $to, 'cust_data' => $cust_data, 'prod_data' => $prod_data, 'transaction_data' => $transaction_data, 'opening_data' => $opening_data];
+    }
+    
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function report(Request $request)
+    {
+        
+        $cust_data = Customer::select('id','mobile','name')->where('active','1')->get();
+        $prod_data = DB::select('SELECT
+        DISTINCT transactions.cid, products.id, products.name
+        FROM transactions, products
+        WHERE transactions.cid = 
+        (
+            SELECT 
+                customers.id 
+            FROM customers 
+            LIMIT 1
+        )
+        AND transactions.pid = products.id');
+        $data = $this->report_data($request);
+        $data["form_cust_data"] = $cust_data;
+        $data["form_prod_data"] = $prod_data;
+        // error_log(json_encode($data));
+        return view('report', $data);
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function export_pdf(Request $request)
+    {
+        // error_log('cust_id - '.$request->cust_id);
+        // error_log('p_name - '.$request->p_name);
+        // error_log('ft_date - '.$request->ft_date);
+        // error_log('tt_date - '.$request->tt_date);
        
-        $data = ['from_date' => $from, 'to_date' => $to, 'cust_data' => $cust_data, 'prod_data' => $prod_data, 'transaction_data' => $transaction_data, 'opening_data' => $opening_data];
+        $data = $this->report_data($request);
+        // dd($data);
+
         $pdf = PDF::loadView('reports._report_view', $data);
         $dom_pdf = $pdf->getDomPDF();
         $canvas = $dom_pdf ->get_canvas();
         $canvas->page_text(500,810, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
-        return $pdf->download('report_pdf.pdf');
+        return $pdf->download('customer_report.pdf');
     }
 
     /**
@@ -279,18 +315,7 @@ class HomeController extends Controller
         $dom_pdf = $pdf->getDomPDF();
         $canvas = $dom_pdf ->get_canvas();
         $canvas->page_text(500,810, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
-        return $pdf->download('report_pdf.pdf');        
-    }
-
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function report(Request $request)
-    {
-        $cust_data = Customer::select('id','mobile','name')->where('active','1')->get();
-        return view('report', ["cust_data" => $cust_data, 'transaction_data' => Transaction::all()]);
+        return $pdf->download('transaction_report.pdf');        
     }
 
     /**
@@ -300,7 +325,7 @@ class HomeController extends Controller
      */
     public function get_prod($id)
     {
-        error_log($id);        
+        // error_log($id);        
         if($id !== "all"){
             $prod_data = Transaction::distinct()->select('customers.id','transactions.pid as id','products.name')
             ->join('products','products.id','=','transactions.pid')
@@ -315,7 +340,7 @@ class HomeController extends Controller
             ->where('products.active','1')
             ->get();
         }
-        error_log($prod_data);
+        // error_log($prod_data);
         return json_encode($prod_data);
     }
 
@@ -401,7 +426,7 @@ class HomeController extends Controller
      */
     public function fetch_stock_products($id)
     {
-        error_log("/stock-prod - ".$id);
+        // error_log("/stock-prod - ".$id);
         $data = DB::select('SELECT 
             DISTINCT products.name, products.id
         FROM products

@@ -100,6 +100,22 @@
                 </button>
             </div>
         @endif
+        @if($value[0] === "report")
+            <div class="mb-5 mr-4" style="position:fixed;bottom:0;right:0">
+                <button 
+                    type="button"
+                    onclick="
+                        $('#report-form').attr('action',`{{ route('getpdf') }}`);
+                        $('#report-form').attr('target','_blank');
+                        $('#report-form').submit();
+                    "
+                    title="Print Report" 
+                    class="shadow-lg btn btn-dark text-info rounded-circle"  
+                >
+                    <i class="fa fa-print"></i>
+                </button>
+            </div>
+        @endif
 
         <div class="text-right text-white fixed-bottom bg-dark">
             Designed by VINKS Sevices LLP &nbsp; 

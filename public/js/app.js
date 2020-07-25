@@ -37333,14 +37333,15 @@ $(document).ready(function () {
     } else {
       $("#master-div").css("display", "none");
     }
-  });
-  $("#report").click(function () {
-    if ($("#report-div").css("display") === "none") {
-      $("#report-div").css("display", "block");
-    } else {
-      $("#report-div").css("display", "none");
-    }
-  });
+  }); // $("#report").click(function(){
+  //     if($("#report-div").css("display") === "none"){
+  //         $("#report-div").css("display","block");
+  //     }
+  //     else{
+  //         $("#report-div").css("display","none");
+  //     }
+  // });
+
   $("#name-form").submit(function (e) {
     e.preventDefault();
     $("#real_name").val($("#name_name").val());

@@ -14,7 +14,7 @@
             <form action="{{ route('customer.update', $id) }}" method="POST" class="p-4 border" id="real-form">
             @method('PUT')            
         @else  
-            <div id="form-div" style="display:none">      
+            <!-- <div >      
                 <form action="#" id="name-form">
                     <label for="">Customer Name</label>
                     <div class="input-group">
@@ -24,8 +24,8 @@
                         </div>
                     </div>
                 </form>
-            </div>
-            <form action="{{ route('customer.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
+            </div> -->
+            <form id="form-div" style="display:none" action="{{ route('customer.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
         @endif
             @csrf
             <div class="form-row">

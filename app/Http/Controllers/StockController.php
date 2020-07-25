@@ -73,7 +73,7 @@ class StockController extends Controller
     {
         unset($request['_token']);
         $res = Stock::create($request->all());
-        error_log($res);
+        // error_log($res);
         
         return \Redirect::route('stock.index');
     }
@@ -122,7 +122,7 @@ class StockController extends Controller
         unset($request['_token']);
         unset($request['_method']);
         $res = Stock::find($id)->update($request->all());
-        error_log($res);
+        // error_log($res);
 
         return \Redirect::route('stock.index');
     }
@@ -136,7 +136,7 @@ class StockController extends Controller
     public function destroy($id)
     {
         $res = Stock::find($id)->delete();
-        error_log(response()->json($res));
+        // error_log(response()->json($res));
         
         // return \Redirect::route('stock.index');
     }
