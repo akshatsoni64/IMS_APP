@@ -19,9 +19,9 @@
                             <tr class="text-center">
                                 <td>{{ $row->name }}</td>
                                 <td>{{ $row->opening_stock }}</td>
-                                <td>{{ $row->s_issue }}</td>
-                                <td>{{ $row->s_receive }}</td>
-                                <td>{{ $row->closing_stock }}</td>
+                                <td>{{ $row->s_issue ?? 0 }}</td>
+                                <td>{{ $row->s_receive ?? 0 }}</td>
+                                <td>{{ $row->opening_stock - $row->s_issue + $row->s_receive }}</td>
                             </tr>
                         @endforeach
                     </tbody>

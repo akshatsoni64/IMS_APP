@@ -6,10 +6,11 @@
 @php( $value=explode('.',$route) ) 
 <div class="col">
     <div class="px-3">
-        <!-- <h1 align="center">        
+        <!-- <h4 align="center">        
             {{ Str::title($value[0]) }}
             Page
-        </h1> -->
+        </h4> -->
+        
         @if($value[1]=="edit")
             <form action="{{ route('stock.update', $id) }}" method="POST" class="p-4 border">
                 @method('PUT')
@@ -58,10 +59,10 @@
             </div>
             <div class="form-row mt-4">
                 <div class="col">
-                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-warning' : 'btn-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
+                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
                 </div>
                 <div class="col">
-                    <a class="btn btn-block btn-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
+                    <a class="btn btn-block btn-outline-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
                 </div>                
             </div>
         </form>

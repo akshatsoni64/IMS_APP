@@ -2,16 +2,6 @@
     <table class="table table-bordered" border=1 align="center" style="width:100%; text-align: center;">
         <thead>
         <tr>
-            <th class="text-center" colspan=6>
-                <h2 style="padding:0px">
-                    {{ (Auth::check()) ? Auth::user()->name : 'Report - Header' }}
-                </h2>
-                <h4>
-                    Address: {{ (Auth::check()) ? Auth::user()->address : 'Address - Here' }}
-                </h4>
-            </th>
-        </tr> 
-        <tr>
             <td colspan=6>
                 <h1 style="color:red">
                     <b>No Data Found</b>
@@ -40,21 +30,8 @@
         </tr>   
         <tr>
             <td colspan=2> <b>Product:</b> {{ $prod->name }} </td>
-            <td ><b>Date:</b> {{ date("d-m-Y") }} </td>
-            @php( $flag = 0 )
-            <td colspan=2> <b>Opening Stock:</b>
-                @php($sum_stock = 0)
-                @foreach($opening_data as $row)
-                    @if($row->pid == $prod->id)
-                        {{ $row->opening_stock }} 
-                        @php( $sum_stock += $row->opening_stock )
-                        @php( $flag = 1 )
-                    @endif
-                @endforeach
-                @if($flag == 0)
-                    {{ 0 }}
-                @endif
-            </td>
+            <td colspan=3> <b>Date:</b> {{ date("d-m-Y") }} </td>
+            
         </tr>
         <tr class="text-center">
             <th>Date</th>
@@ -66,11 +43,12 @@
         </tr>
     </thead>
     <tbody>
+        @php($sum_stock = 0)
         @foreach($transaction_data as $row)
             <!-- @php(error_log($row)) -->
             @if($row->pid == $prod->id)
                 <tr class="text-center">
-                    <td> {{ $row->t_date }} </td>
+                    <td> {{ date_format(date_create($row->t_date),"d-m-Y") }} </td>
                     <td> {{ $row->name }} </td>
                     <td> {{ $row->vehicle_number }} </td>
                     <td> {{ $row->issue }} </td>

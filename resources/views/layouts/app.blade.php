@@ -50,13 +50,13 @@
                 @else
                     <div class="col">
                 @endif
-                    <h1 align="center">
+                    <h2 align="center">
                         @if(Auth::check())
-                            {{ Auth::user()->name.' | IMS' }}
+                            {{ Auth::user()->name.' | '.Str::title($value[0]).' Page' }}
                         @else
                             {{ 'Inventory Management System' }}
                         @endif
-                    </h1>
+                    </h2>
                 </div>
             </div>
         </nav>    
@@ -100,20 +100,40 @@
                 </button>
             </div>
         @endif
-        @if($value[0] === "report")
+        @if($value[0] == "report" || $value[0] == "home")
             <div class="mb-5 mr-4" style="position:fixed;bottom:0;right:0">
-                <button 
-                    type="button"
-                    onclick="
-                        $('#report-form').attr('action',`{{ route('getpdf') }}`);
-                        $('#report-form').attr('target','_blank');
-                        $('#report-form').submit();
-                    "
-                    title="Print Report" 
-                    class="shadow-lg btn btn-dark text-info rounded-circle"  
-                >
-                    <i class="fa fa-print"></i>
-                </button>
+                @if($value[0] == "report")
+                    <button 
+                        type="button"
+                        onclick="
+                            $('#report-form').attr('action',`{{ route('getpdf') }}`);
+                            $('#report-form').attr('target','_blank');
+                            $('#report-form').submit();
+                        "
+                        title="Print Report" 
+                        class="shadow-lg btn btn-dark text-info rounded-circle"  
+                    >
+                        <i class="fa fa-print"></i>
+                    </button>
+                    <button 
+                        type="button"
+                        id="toggle-reportform"
+                        title="Toggle Report Form" 
+                        class="shadow-lg btn btn-dark text-white rounded-circle"  
+                    >
+                        <i class="fa fa-wpforms"></i>
+                    </button>
+                @elseif($value[0] == "home")
+                    <a target="_blank" href="{{ route('dashboard_summary')}}">
+                        <button 
+                            type="button"
+                            title="Print Report" 
+                            class="shadow-lg btn btn-dark text-info rounded-circle"  
+                        >
+                            <i class="fa fa-print"></i>
+                        </button>
+                    </a>
+                @endif
             </div>
         @endif
 

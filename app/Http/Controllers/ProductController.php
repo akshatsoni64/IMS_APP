@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\{Stock, Customer, User, Product, Transaction};
 use Illuminate\Http\Request;
+use DB;
 
 class ProductController extends Controller
 {
@@ -50,6 +51,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         unset($request['_token']);
+        // ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
         $res = Product::create($request->all());
         // error_log($res);
 
@@ -95,6 +97,7 @@ class ProductController extends Controller
     {
         unset($request['_token']);
         unset($request['_method']);
+        ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
         $res = Product::find($id)->update($request->all());
         // error_log($res);
 
@@ -109,10 +112,16 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $res = Product::where('id',$id)->update(['active' => '0']); //Update the active status
-        $res = Product::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
+        $count = DB::select('SELECT COUNT(*) AS count FROM transactions WHERE pid = ?',[$id]);
+        error_log($count[0]->count);
+        if($count[0]->count > 0){
+            return "Failed";
+        }
+        else{
+            $res = Product::where('id',$id)->update(['active' => '0']); //Update the active status
+            $res = Product::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
+        }
         // error_log(response()->json($res));
 
-        // return \Redirect::route('product.index');
     }
 }

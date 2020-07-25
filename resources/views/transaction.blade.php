@@ -6,10 +6,11 @@
     <div class="px-3">
         @php($route=Request::route()->getName())
         @php( $value=explode('.',$route) ) 
-        <!-- <h1 align="center">
+        <!-- <h4 align="center">
             {{ Str::title($value[0]) }}
             Page
-        </h1> -->
+        </h4> -->
+        
         <!-- <div id="form-div" style='display:none'> -->
             @if($value[1] != "edit")
             @endif
@@ -24,19 +25,19 @@
                             <label class="mt-1">From*</label>
                         </div>
                         <div class="col-xl-3">
-                            <input class="form-control" value="{{ $from_date ?? date('Y-m-d') }}" name="from_date" type="date" title="From Date" required>
+                            <input class="form-control" value="{{ $from_date ?? date('Y-m-d') }}" name="from_date" type="date" title="From Date" max="{{ date('Y-m-d') }}" required>
                         </div>
                         <div class="col-xl-1 text-right">
                             <label class="mt-1">To*</label>
                         </div>
                         <div class="col-xl-3">
-                            <input class="form-control" value="{{ $to_date ?? date('Y-m-d') }}" name="to_date" type="date" title="To Date" required>
+                            <input class="form-control" value="{{ $to_date ?? date('Y-m-d') }}" name="to_date" type="date" title="To Date" max="{{ date('Y-m-d') }}" required>
                         </div>
                         <div class="col">
                             <!-- <div class="d-flex justify-content-center"> -->
                                 <button class="btn btn-outline-primary" value="Load" type="submit">
-                                    <!-- Reload -->
-                                    <i class="fa fa-refresh"></i>
+                                    OK
+                                    <!-- <i class="fa fa-refresh"></i> -->
                                 </button>
                                 <!-- <button class="ml-5 btn btn-outline-primary" value="Print" formaction="{{ route('get_transactions_report') }}" type="submit">
                                     <i class="fa fa-print"></i>
@@ -51,7 +52,7 @@
                 <div class="form-row">
                     <div class="col">
                         <label>Transaction Date*</label>
-                        <input class="form-control" value="{{ $formdata->t_date ?? date('Y-m-d') }}" name="t_date" type="date" title="Transaction Date" required>
+                        <input class="form-control" value="{{ $formdata->t_date ?? date('Y-m-d') }}" name="t_date" type="date" title="Transaction Date" max="{{ date('Y-m-d') }}" required>
                     </div>
                     <div class="col">
                         <label>Customer Name*</label>
@@ -108,10 +109,10 @@
                 </div>
                 <div class="form-row mt-4">
                     <div class="col">
-                        <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-warning' : 'btn-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
+                        <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
                     </div>
                     <div class="col">
-                        <a class="btn btn-block btn-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
+                        <a class="btn btn-block btn-outline-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
                     </div>                
                 </div>
             </form>

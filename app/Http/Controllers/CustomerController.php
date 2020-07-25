@@ -52,7 +52,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         unset($request['_token']);
-        ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
+        // ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
         $res = Customer::create($request->all());
         // error_log($res);
 

@@ -6,10 +6,11 @@
 @php( $value=explode('.',$route) ) 
 <div class="col">
     <div class="px-3">
-        <!-- <h1 align="center">        
+        <!-- <h4 align="center">        
             {{ Str::title($value[0]) }}
             Page
-        </h1> -->
+        </h4> -->
+
         @if($value[1] == "edit")
             <form action="{{ route('customer.update', $id) }}" method="POST" class="p-4 border" id="real-form">
             @method('PUT')            
@@ -43,14 +44,23 @@
                 </div>
             </div>
             <div class="form-row mt-2">
-                <div class="col-xl-6">
+                <div class="col">
                 <label for="email">Email</label>
                     <input class="form-control" value="{{ $formdata->email ?? '' }}"  name="email"  type="email" placeholder="Email">
                 </div>
-                <div class="col-xl-4">
+                <div class="col">
                     <label for="mobile">Mobile Number*</label>
                     <input class="form-control" value="{{ $formdata->mobile ?? '' }}" name="mobile" type="number" placeholder="Mobile Number" min="1111111111" max="9999999999" required>
                 </div>
+                <div class="col">
+                    <label class="" for="created_at">Registration Date*</label>
+                    <input class="form-control" value="{{ $formdata->created_at ?? date('Y-m-d') }}" name="created_at" type="date" title="Registration Date" max="{{ date('Y-m-d') }}" required>
+                </div>
+                <div class="col" id="end_date-input" style="display:none">
+                    <label class="" for="end_date">Termination Date</label>
+                    <input class="form-control" value="{{ $formdata->end_date ?? '' }}" name="end_date" type="date" title="Termination Date" max="{{ date('Y-m-d') }}">
+                </div>
+                @if($value[1] == "edit")
                 <div class="col-xl-2">
                     <label class="" for="active">Service Status</label>
                     <div class="custom-control custom-switch">
@@ -58,6 +68,7 @@
                         <label class="custom-control-label" for="active"></label>
                     </div>
                 </div>
+                @endif
             </div>
             <div class="form-row mt-2">
                 <div class="col">
@@ -65,22 +76,14 @@
                     <input class="form-control" value="{{ $formdata->address ?? '' }}"  name="address"  type="text" placeholder="Address">
                 </div>
             </div>
-            <div class="form-row mt-2">
-                <div class="col">
-                    <label class="" for="created_at">Registration Date*</label>
-                    <input class="form-control" value="{{ $formdata->created_at ?? date('Y-m-d') }}" name="created_at" type="date" title="Registration Date" required>
-                </div>
-                <div class="col" id="end_date-input" style="display:none">
-                    <label class="" for="end_date">Termination Date</label>
-                    <input class="form-control" value="{{ $formdata->end_date ?? '' }}" name="end_date" type="date" title="Termination Date">
-                </div>
-            </div>
+            <!-- <div class="form-row mt-2">
+            </div> -->
             <div class="form-row mt-4">
                 <div class="col">
-                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-warning' : 'btn-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
+                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
                 </div>
                 <div class="col">
-                    <a class="btn btn-block btn-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
+                    <a class="btn btn-block btn-outline-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
                 </div>                
             </div>
         </form>

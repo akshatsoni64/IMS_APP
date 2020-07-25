@@ -91,8 +91,13 @@ $(document).ready(function(){
             url:url,
             type:'DELETE',
             success:function(data){
-                console.log('success');
-                location.reload();
+                if(data == "Failed"){
+                    // console.log(data);
+                    alert("Transactions are there, Can't delete this product!")
+                }
+                else{
+                    location.reload();
+                }
             }
         });
         $('#confirmation-form').modal('toggle');
@@ -148,5 +153,15 @@ $(document).ready(function(){
                 $("#stock-products").html(options);
             }
         });
+    });
+
+    $("#toggle-reportform").click(function(){
+        var css = $("#report-form").css("display");
+        if(css == "none"){
+            $("#report-form").css("display","block");
+        }
+        else{
+            $("#report-form").css("display","none");
+        }
     });
 });

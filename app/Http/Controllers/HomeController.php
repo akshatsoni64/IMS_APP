@@ -22,6 +22,7 @@ class HomeController extends Controller
         $this->middleware('auth');
         // $this->user_address = (Auth::check()) ? User::select('address')->where('name',Auth::user())->get() : "";
     }
+
     public function report_data($request){        
         // error_log("FD: ".$request->ft_date);
         // error_log("TD: ".$request->tt_date);
@@ -43,7 +44,7 @@ class HomeController extends Controller
         }
         $cust_data = $cust_data->distinct();
         $cust_data = $cust_data->get();
-
+        
         $prod_data = Product::select('customers.id as cid','products.id as pid','products.name as pname','products.quantity as pq')->where('products.active','1');
         $prod_data = $prod_data->join('transactions','products.id','=','transactions.pid');
         $prod_data = $prod_data->join('customers','customers.id','=','transactions.cid');
@@ -68,9 +69,9 @@ class HomeController extends Controller
                 FROM transactions 
                 WHERE t_date >= ? 
                 AND t_date <= ? 
-                ORDER BY id, pid';
+                ORDER BY t_date, pid';
                 $tparam = [$from, $to];
-
+                
                 $oquery = 'SELECT 
                     customers.id as cid, 
                     products.id as pid, 
@@ -102,9 +103,9 @@ class HomeController extends Controller
                 WHERE t_date >= ? 
                 AND t_date <= ? 
                 AND pid = ? 
-                ORDER BY id, pid';
+                ORDER BY t_date, pid';
                 $tparam = [$from, $to, $pcode];
-
+                
                 $oquery = 'SELECT 
                     customers.id as cid, 
                     products.id as pid, 
@@ -139,7 +140,7 @@ class HomeController extends Controller
                 WHERE t_date >= ? 
                 AND t_date <= ? 
                 AND cid = ? 
-                ORDER BY id, pid';
+                ORDER BY t_date, pid';
                 $tparam = [$from, $to, $cust_id];
                 
                 $oquery = 'SELECT 
@@ -175,7 +176,7 @@ class HomeController extends Controller
                 AND t_date <= ? 
                 AND pid = ? 
                 AND cid = ? 
-                ORDER BY id, pid';
+                ORDER BY t_date, pid';
                 $tparam = [$from, $to, $pcode, $cust_id];
                 
                 $oquery = 'SELECT 
@@ -208,8 +209,8 @@ class HomeController extends Controller
 
         $transaction_data = DB::select($tquery, $tparam);
         $opening_data = DB::select($oquery, $oparam);
-
-        return ['from_date' => $from, 'to_date' => $to, 'cust_data' => $cust_data, 'prod_data' => $prod_data, 'transaction_data' => $transaction_data, 'opening_data' => $opening_data];
+        
+        return ['cust_id' => $cust_id, 'pcode' => $pcode, 'from_date' => $from, 'to_date' => $to, 'cust_data' => $cust_data, 'prod_data' => $prod_data, 'transaction_data' => $transaction_data, 'opening_data' => $opening_data];
     }
     
     /**
@@ -219,26 +220,45 @@ class HomeController extends Controller
      */
     public function report(Request $request)
     {
+        $request->cust_id = ($request->cust_id == "") ? "all" : $request->cust_id;
+        $request->p_name = ($request->p_name == "") ? "all" : $request->p_name;
+        $request->ft_date = ($request->ft_date == "") ? date("Y-m-d") : $request->ft_date;
+        $request->tt_date = ($request->tt_date == "") ? date("Y-m-d") : $request->tt_date;
+        
+        error_log('cust_id - '.$request->cust_id);
+        error_log('p_name - '.$request->p_name);
+        error_log('ft_date - '.$request->ft_date);
+        error_log('tt_date - '.$request->tt_date);
         
         $cust_data = Customer::select('id','mobile','name')->where('active','1')->get();
-        $prod_data = DB::select('SELECT
-        DISTINCT transactions.cid, products.id, products.name
-        FROM transactions, products
-        WHERE transactions.cid = 
-        (
-            SELECT 
-                customers.id 
-            FROM customers 
-            LIMIT 1
-        )
-        AND transactions.pid = products.id');
+        
+        if($request->cust_id == "all"){
+            $prod_data = DB::select('SELECT
+            DISTINCT transactions.cid, products.id, products.name
+            FROM transactions, products
+            WHERE transactions.cid = 
+            (
+                SELECT 
+                    customers.id 
+                FROM customers 
+                LIMIT 1
+            )
+            AND transactions.pid = products.id');
+        }
+        else{
+            $prod_data = DB::select('SELECT
+            DISTINCT transactions.cid, products.id, products.name
+            FROM transactions, products
+            WHERE transactions.cid = ?
+            AND transactions.pid = products.id', [$request->cust_id]);
+        }
         $data = $this->report_data($request);
         $data["form_cust_data"] = $cust_data;
         $data["form_prod_data"] = $prod_data;
-        // error_log(json_encode($data));
+        error_log(json_encode($data));
         return view('report', $data);
     }
-
+    
     /**
      * Show the application dashboard.
      *
@@ -250,17 +270,17 @@ class HomeController extends Controller
         // error_log('p_name - '.$request->p_name);
         // error_log('ft_date - '.$request->ft_date);
         // error_log('tt_date - '.$request->tt_date);
-       
+        
         $data = $this->report_data($request);
         // dd($data);
-
+        
         $pdf = PDF::loadView('reports._report_view', $data);
         $dom_pdf = $pdf->getDomPDF();
         $canvas = $dom_pdf ->get_canvas();
         $canvas->page_text(500,810, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
         return $pdf->download('customer_report.pdf');
     }
-
+    
     /**
      * Show the application dashboard.
      *
@@ -286,7 +306,7 @@ class HomeController extends Controller
         
         // return $request;
         // $opening_data = DB::select("SELECT products.id AS pid, (products.quantity + transaction_stock.s_stock) AS opening_stock FROM products, ( SELECT pid, SUM(receive - issue) AS s_stock FROM transactions WHERE t_date >= '2020-07-10' AND t_date < '2020-07-23' GROUP BY pid ) AS transaction_stock WHERE products.id = transaction_stock.pid");
-
+        
         if($request->pid == "all"){
             $prod_data = Product::select('products.id','products.name')
             ->distinct()
@@ -302,14 +322,16 @@ class HomeController extends Controller
             ->where('products.id',$request->pid)
             ->get();
         }
-
+        
         $transaction_data = Transaction::select('transactions.t_date','customers.name','transactions.pid','transactions.issue','transactions.receive','transactions.vehicle_number')
         ->join('customers','customers.id','=','transactions.cid')        
         ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
+        ->orderBy('transactions.t_date')
+        ->orderBy('customers.name')
         ->get();
         
         // dd($transaction_data, $prod_data, $opening_data);
-       
+        
         $data = ["transaction_data" => $transaction_data, "prod_data" => $prod_data, "opening_data" => $opening_data];
         $pdf = PDF::loadView('reports._report_transaction_view', $data);
         $dom_pdf = $pdf->getDomPDF();
@@ -317,7 +339,7 @@ class HomeController extends Controller
         $canvas->page_text(500,810, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
         return $pdf->download('transaction_report.pdf');        
     }
-
+    
     /**
      * Show the application dashboard.
      *
@@ -343,14 +365,8 @@ class HomeController extends Controller
         // error_log($prod_data);
         return json_encode($prod_data);
     }
-
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function index()
-    {
+    
+    public function transaction_dashboard(){
         $transaction_data = DB::select('SELECT 
             products.name, 
             ( 
@@ -361,17 +377,17 @@ class HomeController extends Controller
                 - transaction.open_issue 
             ) AS opening_stock, 
             transaction.s_issue, 
-            transaction.s_receive, 
-            ( 
-                (
-                    (
-                        products.quantity 
-                        + transaction.open_receive) 
-                    - transaction.open_issue
-                ) 
-                + transaction.s_receive 
-                - transaction.s_issue 
-            ) AS closing_stock
+            transaction.s_receive
+            -- ( 
+            --     (
+            --         (
+            --             products.quantity 
+            --             + transaction.open_receive) 
+            --         - transaction.open_issue
+            --     ) 
+            --     + transaction.s_receive 
+            --     - transaction.s_issue 
+            -- ) AS closing_stock
         FROM products, 
         ( 
             SELECT
@@ -403,7 +419,36 @@ class HomeController extends Controller
         ) AS transaction 
         WHERE products.id = transaction.pid
         AND products.active = 1');
+
+        return $transaction_data;
+    }       
+    
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function index()
+    {
+        $transaction_data = $this->transaction_dashboard();
         return view('home', ['transaction_data' => $transaction_data]);
+    }
+    
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function dashboard_summary()
+    {
+        $data = ["dashboard_data" => $this->transaction_dashboard()];
+        // dd($data);
+        
+        $pdf = PDF::loadView('reports._report_dashboard', $data);
+        $dom_pdf = $pdf->getDomPDF();
+        $canvas = $dom_pdf ->get_canvas();
+        $canvas->page_text(500,810, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
+        return $pdf->download('dashboard_summary.pdf');
     }
 
     /**
