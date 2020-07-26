@@ -38,6 +38,7 @@ class StockController extends Controller
             customers.id, customers.name, customers.mobile            
         FROM stocks RIGHT OUTER JOIN customers 
         ON customers.id = stocks.cid 
+        WHERE customers.active = 1
         GROUP BY customers.id 
         HAVING COUNT(pid) != (
             SELECT 

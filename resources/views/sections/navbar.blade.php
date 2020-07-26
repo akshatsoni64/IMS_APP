@@ -21,12 +21,12 @@
         <div id="master-div">
             <div class="mb-3 card bg-light text-white text-center border border-primary">
                 <h5 class="pt-2">
-                    <a class="text-dark" href="{{ route('customer.index') }}">Customer</a>
+                    <a class="text-dark" href="{{ route('customer.index') }}">Customers</a>
                 </h5>
             </div>
             <div class="mb-3 card bg-light text-white text-center border border-primary">
                 <h5 class="pt-2">                    
-                    <a class="text-dark" href="{{ route('product.index') }}">Product</a>
+                    <a class="text-dark" href="{{ route('product.index') }}">Products</a>
                 </h5>
             </div>
             <div class="mb-3 card bg-light text-white text-center border border-primary">
@@ -47,7 +47,7 @@
         <div class="mb-3 card bg-dark text-center">
             <h5 class="pt-2">
                 <a class="text-white" href="{{ route('report') }}">
-                    Report
+                    Reports
                 </a>
             </h5>
         </div>

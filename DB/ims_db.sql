@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 25, 2020 at 03:38 PM
+-- Generation Time: Jul 26, 2020 at 12:10 PM
 -- Server version: 8.0.20-0ubuntu0.20.04.1
 -- PHP Version: 7.4.3
 
@@ -48,7 +48,9 @@ INSERT INTO `customers` (`id`, `name`, `org_name`, `email`, `address`, `mobile`,
 (1, 'Akshat', NULL, NULL, NULL, 9123456789, 1, '2020-07-24', NULL),
 (2, 'Monster', NULL, NULL, NULL, 9321654987, 1, '2020-07-24', NULL),
 (3, 'Test User', 'Test Org', NULL, NULL, 9876543210, 1, '2020-07-24', NULL),
-(4, 'New User', 'No Name', NULL, 'Reg date in future', 9898989898, 1, '2020-08-30', NULL);
+(4, 'New', 'No Name', NULL, 'Reg date in future', 9898989898, 1, '2020-07-26', NULL),
+(5, 'New Customer', NULL, NULL, NULL, 9123456789, 0, '2020-07-26', '2020-07-31'),
+(6, 'New Customer', NULL, NULL, NULL, 9123456798, 0, '2020-07-26', '2020-07-26');
 
 -- --------------------------------------------------------
 
@@ -124,11 +126,13 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `quantity`, `active`, `rate`, `measure_unit`, `created_at`, `end_date`) VALUES
-(1, '14.2KG Cylinder', 500, 1, NULL, NULL, '2020-07-24', NULL),
-(2, '19.0KG Cylinder', 400, 1, NULL, NULL, '2020-07-24', NULL),
-(3, '35.0KG Cylinder', 500, 1, NULL, NULL, '2020-07-24', NULL),
+(1, '14.2KG Cylinder', 500, 1, NULL, NULL, '2020-07-24', '2020-07-25'),
+(2, '19.0KG Cylinder', 400, 1, NULL, NULL, '2020-07-24', '2020-07-25'),
+(3, '35.0KG Cylinder', 500, 1, NULL, NULL, '2020-07-24', '2020-07-25'),
 (4, '19.0KG Nanocut Cylinder', 200, 1, NULL, NULL, '2020-07-24', NULL),
-(5, '47.5KG Cylinder', 350, 1, NULL, NULL, '2020-07-24', NULL);
+(5, '47.5KG Cylinder', 350, 1, NULL, NULL, '2020-07-24', NULL),
+(6, 'New Product', 5, 0, NULL, NULL, '2020-07-26', '2020-07-26'),
+(7, 'New Product', 5, 0, NULL, NULL, '2020-07-26', '2020-07-26');
 
 -- --------------------------------------------------------
 
@@ -2229,7 +2233,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `username`, `password`, `address`, `mobile`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'Name', 'email@email.com', 'username', '$2y$10$9WkLsKMxFV9Wak00CX/kjOEV/eglhWqiPLfXjfyOy5Zd2V3Rd05lq', 'Address Here', NULL, NULL, NULL, NULL);
+(1, 'Vimal Distributors', 'email@email.com', 'username', '$2y$10$9WkLsKMxFV9Wak00CX/kjOEV/eglhWqiPLfXjfyOy5Zd2V3Rd05lq', ' Ashok Nagar, Bhopal Ganj, Bhilwara, Rajasthan 311001', NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -2293,7 +2297,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -2311,7 +2315,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `stocks`
@@ -2323,7 +2327,7 @@ ALTER TABLE `stocks`
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2024;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2027;
 
 --
 -- AUTO_INCREMENT for table `users`
