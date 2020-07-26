@@ -52,7 +52,7 @@
                 @endif
                     <h2 align="center">
                         @if(Auth::check())
-                            @if($value[0] == "stock")
+                            @if($value[0] == "stock" || $value[0] == "home")
                                 {{ Auth::user()->name.' | '.Str::title($value[0]) }}
                             @else
                                 {{ Auth::user()->name.' | '.Str::title($value[0]).'s' }}
