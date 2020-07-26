@@ -367,6 +367,7 @@ class HomeController extends Controller
     }
     
     public function transaction_dashboard(){
+        /*
         $transaction_data = DB::select('SELECT 
             products.name, 
             ( 
@@ -419,6 +420,35 @@ class HomeController extends Controller
         ) AS transaction 
         WHERE products.id = transaction.pid
         AND products.active = 1');
+        */
+
+        $transaction_data = DB::select('SELECT
+            p.name,
+            (p.quantity + (
+                SELECT 
+                    IFNULL(SUM(receive) - SUM(issue),0)
+                FROM transactions
+                WHERE t_date < DATE_FORMAT(NOW(), "%Y-%m-%d")
+                AND pid = p.id
+            )) AS opening_stock,
+            IFNULL(t.issue,0) AS s_issue,
+            IFNULL(t.receive,0) AS s_receive,
+            (p.quantity+ (
+                SELECT 
+                    IFNULL(SUM(receive) - SUM(issue),0)
+                FROM transactions
+                WHERE t_date <= DATE_FORMAT(NOW(), "%Y-%m-%d")
+                AND pid = p.id
+            )) AS closing_stock
+        FROM products p LEFT JOIN 
+        (
+            SELECT 
+                pid, IFNULL(SUM(issue),0) as issue, IFNULL(SUM(receive),0) as receive
+            FROM transactions
+            WHERE t_date = DATE_FORMAT(NOW(), "%Y-%m-%d")
+            GROUP BY pid
+        ) t
+        ON p.id = t.pid');
 
         return $transaction_data;
     }       

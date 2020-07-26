@@ -74,7 +74,7 @@
                 id="toggle-nav-div"
                 type='button'
                 title="Toggle Side Menu" 
-                class="btn btn-dark fixed-bottom mb-5 ml-1"
+                class="btn btn-dark fixed-bottom mb-5 ml-3 pl-3 pr-3"
             >
                 <i class="font-weight-bold fa fa-angle-left"></i>
             </button>

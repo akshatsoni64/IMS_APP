@@ -41,9 +41,10 @@
                 <th>Receive</th>
             </tr>
         </thead>
-        @foreach($prod_data as $prod)
-            @if($prod->cid == $cust->id)
-                <tbody>
+        <tbody>
+            @php($total = 0)
+            @foreach($prod_data as $prod)
+                @if($prod->cid == $cust->id)
                     <!-- Total Variable Initialization -->
                     @php($sum = 0)
 
@@ -83,15 +84,24 @@
                     @endforeach
                     <tr class="text-center">
                         <td colspan=3>
-                            <b> Grand Total: </b>
+                            <b> Total: </b>
                         </td>               
                         <td colspan=2> 
+                            @php($total += $sum)
                             <b> {{ $sum }} </b> 
                         </td>
                     </tr>
-                </tbody>
-            @endif
-        @endforeach
+                @endif
+            @endforeach
+            <tr class="text-center">
+                <td colspan=3>
+                    <b> Grand Total: </b>
+                </td>               
+                <td colspan=2> 
+                    <b> {{ $total }} </b> 
+                </td>
+            </tr>
+            </tbody>
         </table>
     @endforeach
 @endif
