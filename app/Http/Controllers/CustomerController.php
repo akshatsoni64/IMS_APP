@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\{Stock, Customer, User, Product, Transaction};
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use DB;
 
 class CustomerController extends Controller
 {
@@ -25,7 +26,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $data = Customer::select('id','name as CustomerName','org_name as OrganizationName','mobile as MobileNumber')
+        $data = Customer::select('id','name as Customer Name','org_name as Organization Name','mobile as Mobile Number')
         ->where('active','1')
         ->orderBy('id','desc')
         ->get();
@@ -54,6 +55,10 @@ class CustomerController extends Controller
         unset($request['_token']);
         // ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
         $res = Customer::create($request->all());
+        $prod = Product::select('id')->get();
+        foreach($prod as $row){
+            Stock::create(['cid' => $request->id, 'pid' => $row->id, 'quantity' => 0]);
+        }
         // error_log($res);
 
         return \Redirect::route('customer.index');
@@ -79,7 +84,7 @@ class CustomerController extends Controller
     public function edit($id)
     {
         // error_log('Edit: '.$id);
-        $data = Customer::select('id','name as CustomerName','org_name as OrganizationName','mobile as MobileNumber')
+        $data = Customer::select('id','name as Customer Name','org_name as Organization Name','mobile as Mobile Number')
         ->where('active','1')
         ->orderBy('id','desc')
         ->get();
@@ -98,9 +103,23 @@ class CustomerController extends Controller
     {
         unset($request['_token']);
         unset($request['_method']);
-        ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
+        // ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
+        if($request->active == "on"){
+            $count = DB::select('SELECT COUNT(*) AS count FROM transactions WHERE cid = ?',[$id]);
+            if($count[0]->count > 0){
+                echo "Failed";
+                $request['active']='1';
+            }
+            else{
+                $res = Customer::where('id',$id)->update(['active' => '0']); //Update the active status
+                $res = Customer::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
+                $request['active']='0';
+            }
+        }
+        else{
+            $request['active']='1';
+        }
         $res = Customer::find($id)->update($request->all());
-        // error_log($res);
 
         return \Redirect::route('customer.index');
     }
@@ -113,8 +132,15 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
-        $res = Customer::where('id',$id)->update(['active' => '0']); //Update the active status
-        $res = Customer::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
+        $count = DB::select('SELECT COUNT(*) AS count FROM transactions WHERE cid = ?',[$id]);
+        error_log($count[0]->count);
+        if($count[0]->count > 0){
+            return "Failed";
+        }
+        else{
+            $res = Customer::where('id',$id)->update(['active' => '0']); //Update the active status
+            $res = Customer::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
+        }
         // error_log('DELETE Customer'.$res);
         
         // return \Redirect::route('customer.index');

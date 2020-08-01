@@ -23,6 +23,45 @@ class HomeController extends Controller
         // $this->user_address = (Auth::check()) ? User::select('address')->where('name',Auth::user())->get() : "";
     }
 
+    public function validate_cname(Request $request){
+        $cname = $request->cname;
+        $c_mobile = $request->c_mobile;
+        $cust_id = $request->cust_id;
+        $data = Customer::select('id','name','mobile')->where('name',$cname)->where('mobile',$c_mobile)->get();
+        
+        if($data->count() == 0){
+            echo "Success";
+        }
+        else{
+            if($data[0]->id == $cust_id){
+                echo "Success";
+            }
+            else{
+                echo "Failed";
+                error_log("FAIL");
+            }
+        }
+    }
+
+    public function validate_pname(Request $request){
+        $pname = $request->pname;
+        $prod_id = $request->prod_id;
+        $data = Product::select('id','name')->where('name',$pname)->get();
+        
+        if($data->count() == 0){
+            echo "Success";
+        }
+        else{
+            if($data[0]->id == $prod_id){
+                echo "Success";
+            }
+            else{
+                echo "Failed";
+                error_log("FAIL");
+            }
+        }
+    }
+
     public function report_data($request){        
         // error_log("FD: ".$request->ft_date);
         // error_log("TD: ".$request->tt_date);
@@ -62,13 +101,13 @@ class HomeController extends Controller
         
         // dd($cust_data);
         
+        /*
         if($cust_id === "all"){
             if($pcode === "all"){
                 $tquery = 'SELECT 
                     cid, pid, issue, receive, t_date, vehicle_number 
                 FROM transactions 
-                WHERE t_date >= ? 
-                AND t_date <= ? 
+                WHERE t_date BETWEEN ? AND ? 
                 ORDER BY t_date, pid';
                 $tparam = [$from, $to];
                 
@@ -206,7 +245,55 @@ class HomeController extends Controller
                 $oparam = [$from, $cust_id, $pcode];
             }
         }
+        */
+        
+        $tparam = [$from, $to];
+        $tquery = 'SELECT 
+            cid, pid, issue, receive, t_date, vehicle_number 
+        FROM transactions 
+        WHERE t_date BETWEEN ? AND ?'; 
+        if($cust_id != "all"){
+            $tquery = $tquery.'AND cid = ?';
+            array_push($tparam, $cust_id);
+        }
+        if($pcode != "all"){
+            $tquery = $tquery.'AND pid = ?';
+            array_push($tparam, $pcode);
+        }
+        $tquery = $tquery.' ORDER BY t_date, pid';
 
+        $oparam = [$from,$from];
+        $oquery = "SELECT 
+            c.id AS cid, p.id AS pid, 
+            IF(? <= MIN(t_date), 
+                (
+                    SELECT                
+                    quantity 
+                    FROM stocks
+                    WHERE cid = c.id AND pid = p.id
+                ),
+                (
+                    SELECT
+                        s.quantity + IFNULL(SUM(t.issue),0) - IFNULL(SUM(t.receive),0) AS opening 
+                    FROM stocks s, transactions t  
+                    WHERE c.id = t.cid AND p.id = t.pid 
+                    AND s.cid = c.id AND s.pid = p.id
+                    AND t.t_date < ?
+                    GROUP BY s.quantity
+                )
+            ) AS opening
+        FROM transactions t, customers c, products p
+        WHERE c.id = t.cid AND p.id = t.pid";
+        if($cust_id != "all"){
+            $oquery = $oquery."AND c.id = ?";
+            array_push($oparam, $cust_id);
+        }
+        if($pcode != "all"){
+            $oquery = $oquery."AND p.id = ?";
+            array_push($oparam, $pcode);
+        }
+        $oquery = $oquery." GROUP BY c.id, p.id";
+        // dd($oquery);
         $transaction_data = DB::select($tquery, $tparam);
         $opening_data = DB::select($oquery, $oparam);
         
@@ -225,6 +312,11 @@ class HomeController extends Controller
         $request->ft_date = ($request->ft_date == "") ? date("Y-m-d") : $request->ft_date;
         $request->tt_date = ($request->tt_date == "") ? date("Y-m-d") : $request->tt_date;
         
+        $cust_id = $request->cust_id;
+        $pcode = $request->p_name;
+        $from = $request->ft_date;
+        $to = $request->tt_date;
+
         error_log('cust_id - '.$request->cust_id);
         error_log('p_name - '.$request->p_name);
         error_log('ft_date - '.$request->ft_date);
@@ -250,7 +342,7 @@ class HomeController extends Controller
             DISTINCT transactions.cid, products.id, products.name
             FROM transactions, products
             WHERE transactions.cid = ?
-            AND transactions.pid = products.id', [$request->cust_id]);
+            AND transactions.pid = products.id', [$cust_id]);
         }
         $data = $this->report_data($request);
         $data["form_cust_data"] = $cust_data;
@@ -288,7 +380,11 @@ class HomeController extends Controller
      */
     public function transaction_report(Request $request)
     {
-        
+        $cust_id = $request->cust_id;
+        $pcode = $request->pid;
+        $from = $request->from_date;
+        $to = $request->to_date;
+
         $opening_data = DB::select("SELECT 
             products.id AS pid, 
             (products.quantity +  transaction_stock.s_stock) AS opening_stock
@@ -302,33 +398,38 @@ class HomeController extends Controller
             AND t_date < ?
             GROUP BY pid
         ) AS transaction_stock
-        WHERE products.id = transaction_stock.pid",[$request->from_date, $request->to_date]);
+        WHERE products.id = transaction_stock.pid",[$from, $to]);
         
         // return $request;
         // $opening_data = DB::select("SELECT products.id AS pid, (products.quantity + transaction_stock.s_stock) AS opening_stock FROM products, ( SELECT pid, SUM(receive - issue) AS s_stock FROM transactions WHERE t_date >= '2020-07-10' AND t_date < '2020-07-23' GROUP BY pid ) AS transaction_stock WHERE products.id = transaction_stock.pid");
         
-        if($request->pid == "all"){
+        if($pcode == "all"){
             $prod_data = Product::select('products.id','products.name')
             ->distinct()
             ->join('transactions','products.id','=','transactions.pid')
-            ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
+            ->whereBetween('transactions.t_date',[$from,$to])
             ->get();
         }
         else{
             $prod_data = Product::select('products.id','products.name')
             ->distinct()
             ->join('transactions','products.id','=','transactions.pid')
-            ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
-            ->where('products.id',$request->pid)
+            ->whereBetween('transactions.t_date',[$from,$to])
+            ->where('products.id',$pcode)
             ->get();
         }
         
-        $transaction_data = Transaction::select('transactions.t_date','customers.name','transactions.pid','transactions.issue','transactions.receive','transactions.vehicle_number')
-        ->join('customers','customers.id','=','transactions.cid')        
-        ->whereBetween('transactions.t_date',[$request->from_date,$request->to_date])
-        ->orderBy('transactions.t_date')
-        ->orderBy('customers.name')
-        ->get();
+        $transaction_data = Transaction::select('transactions.t_date','products.name as pname','customers.name as cname','transactions.pid','transactions.issue','transactions.receive','transactions.vehicle_number');
+        $transaction_data = $transaction_data->join('customers','customers.id','=','transactions.cid');
+        $transaction_data = $transaction_data->join('products','products.id','=','transactions.pid');
+        $transaction_data = $transaction_data->whereBetween('transactions.t_date',[$from,$to]);
+        if($pcode != "all"){
+            $transaction_data = $transaction_data->where('transactions.pid',$pcode);
+        }
+        $transaction_data = $transaction_data->orderBy('transactions.t_date');
+        $transaction_data = $transaction_data->orderBy('customers.name','desc');
+        $transaction_data = $transaction_data->orderBy('products.name');
+        $transaction_data = $transaction_data->get();
         
         // dd($transaction_data, $prod_data, $opening_data);
         
@@ -448,7 +549,8 @@ class HomeController extends Controller
             WHERE t_date = DATE_FORMAT(NOW(), "%Y-%m-%d")
             GROUP BY pid
         ) t
-        ON p.id = t.pid');
+        ON p.id = t.pid
+        WHERE p.active = 1');
 
         return $transaction_data;
     }       

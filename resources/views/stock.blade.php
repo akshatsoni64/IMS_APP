@@ -11,21 +11,56 @@
             Page
         </h4> -->
         
-        @if($value[1]=="edit")
-            <form action="{{ route('stock.update', $id) }}" method="POST" class="p-4 border">
+        @if($value[1] == "edit")
+            <form id="{{$value[0]}}-form-div" action="{{ route('stock.update', $id) }}" method="POST" class="p-4 border">
                 @method('PUT')
         @else
-            <form id="form-div" style='display:none' action="{{ route('stock.store') }}" method="POST" class="p-4 border">
+            <form id="load-stock-div" style='display:block' action="{{ route('stock.index') }}" class="p-4 border">
+                @csrf
+                <div class="form-row">
+                    <div class="col-xl-1 text-right">
+                        <label>Customer*</label>
+                    </div>
+                    <div class="col">
+                        <select name="load_cid" class="custom-select" value="" required autofocus>
+                            <option disabled value="">Customer Name</option>
+                            <option selected value="all">All</option>
+                            @foreach($load_cust_data as $row)                                
+                                <option {{ ($form_cust_data == $row->id) ? 'selected' : '' }} value="{{ $row->id }}">{{ $row->name." - ".$row->mobile }}</option>
+                            @endforeach
+                       </select>
+                    </div>
+                    <div class="col-xl-1 text-right">
+                        <label>Product*</label>
+                    </div>
+                    <div class="col">
+                        <select name="load_pid" class="custom-select" value="" required>
+                            <!-- <option selected disabled value="">-- Please Select Customer First --</option> -->
+                            <option disabled value="">Product Code</option>
+                            <option selected value="all">All</option>
+                            @foreach($prod_data as $row)
+                                <option {{ ($form_prod_data == $row->id) ? 'selected' : '' }} value="{{ $row->id }}">{{ $row->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col text-center">
+                        <input class="btn btn-outline-primary" type="submit" value="OK">
+                    </div>
+                </div>
+            </form>
+            <form id="{{$value[0]}}-form-div" style='display:none' action="{{ route('stock.store') }}" method="POST" class="p-4 border">
         @endif
             @csrf
             <div class="form-row">
+                <div class="col-xl-1 text-right">
+                    <label>Customer*</label>
+                </div>
                 <div class="col">
-                    <label>Customer Name*</label>
-                    <select name="cid" id="stock-customer" class="custom-select" value="" required autofocus>
+                    <select name="cid" id="stock-customer" class="custom-select" required autofocus>
                         @if($value[1] == "edit")
                             <option disabled value="">Customer Name</option>
                             @foreach($cust_data as $row)
-                                <option {{ ($row->id == $formdata->cid) ? "selected" : "" }} value="{{ $row->cid }}">{{ $row->name." - ".$row->mobile }}</option>
+                                <option {{ ($row->id == $formdata->cid) ? "selected" : "" }} value="{{ $row->id }}">{{ $row->name." - ".$row->mobile }}</option>
                             @endforeach
                         @else
                             <option selected disabled value="">Customer Name</option>
@@ -35,9 +70,11 @@
                         @endif
                     </select>
                 </div>
+                <div class="col-xl-1 text-right">
+                    <label>Product*</label>
+                </div>
                 <div class="col">
-                    <label>Product Code*</label>
-                    <select name="pid" id="stock-products" class="custom-select" value="" required>
+                    <select name="pid" id="stock-products" class="custom-select" required>
                         @if($value[1] == "edit")
                             <option disabled value="">Product Code</option>
                             @foreach($prod_data as $row)
@@ -52,18 +89,22 @@
                         @endif
                     </select>
                 </div>
-                <div class="col">
-                    <label>Opening Stock*</label>
-                    <input class="form-control" value="{{ $formdata->quantity ?? '' }}" name="quantity" type="number" placeholder="Quantity" min=0 max=999 required>
+                <div class="col-xl-1 text-right">
+                    <label>Opening*</label>
                 </div>
-            </div>
-            <div class="form-row mt-4">
                 <div class="col">
-                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
+                    <input class="form-control" value="{{ $formdata->quantity ?? '0' }}" name="quantity" type="number" placeholder="Quantity" min=0 max=999 required>
+                </div>
+                <div class="col">
+                    <input 
+                        class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" 
+                        type="submit" 
+                        value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}"
+                    >
                 </div>
                 <div class="col">
                     <a class="btn btn-block btn-outline-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>
-                </div>                
+                </div> 
             </div>
         </form>
         @include('partials._datatable')

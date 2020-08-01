@@ -10,33 +10,28 @@
             {{ Str::title($value[0]) }}
             Page
         </h4> -->
-
+        
         @if($value[1]=="edit")
-            <form action="{{ route('product.update', $id) }}" method="POST" class="p-4 border" id="real-form">
-            @method('PUT')            
+        <form id="{{$value[0]}}-form-div" action="{{ route('product.update', $id) }}" method="POST" class="p-4 border">
+            @method('PUT')     
+            <div id="warn-div" style="display:none">
+                <div class="alert alert-warning alert-dismissible fade show">
+                    <!-- <button type="button" class="close" data-dismiss="alert">&times;</button> -->
+                    <strong>Warning:</strong> {{ Str::title($value[0]) }} will be deleted only if no transactions exists for this!
+                </div>
+            </div>
         @else
-            <!-- <div id="form-div" style="display:none">
-                <form action="#" id="name-form">
-                    <label>Product Name</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="name_name" placeholder="Product Name" required autofocus>
-                        <div class="input-group-addon">
-                            <button type="submit" class="btn btn-outline-primary">&#10133;</button>
-                        </div>
-                    </div>
-                </form>
-            </div> -->
-            <form id="form-div" style="display:none" action="{{ route('product.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
+            <form id="{{$value[0]}}-form-div" style="display:none" action="{{ route('product.store') }}" method="POST" class="p-4 border" style="display:none">
         @endif
             @csrf
             <div class="form-row">
                 <div class="col">
                     <label>Product Code*</label>
-                    <input class="form-control" value="{{ $formdata->id ?? '' }}" id="prod_id" name="id" type="number" placeholder="Product ID" min=0 required>
+                    <input class="form-control" value="{{ $formdata->id ?? '' }}" id="prod_id" name="id" type="number" placeholder="Product ID" min=0 disabled required>
                 </div>
                 <div class="col">
                     <label>Product Name*</label>
-                    <input class="form-control" value="{{ $formdata->name ?? '' }}" name="name" id="real_name" type="text" placeholder="Product Name" required>
+                    <input class="form-control" value="{{ $formdata->name ?? '' }}" name="name" id="p_name" type="text" placeholder="Product Name" required>
                 </div>
                 <div class="col-xl-2">
                     <label>Opening Stock*</label>
@@ -49,8 +44,8 @@
                     <input class="form-control" value="{{ $formdata->created_at ?? date('Y-m-d') }}" name="created_at" type="date" title="Registration Date" max="{{ date('Y-m-d') }}" required>
                 </div>
                 <div class="col" id="end_date-input" style="display:none">
-                    <label class="" for="">Termination Date</label>
-                    <input class="form-control" value="{{ $formdata->end_date ?? '' }}" name="end_date" type="date" title="Termination Date" max="{{ date('Y-m-d') }}">
+                    <label class="" for="">Termination Date*</label>
+                    <input class="form-control" value="{{ $formdata->end_date ?? date('Y-m-d') }}" name="end_date" id="end_date" type="date" title="Termination Date" max="{{ date('Y-m-d') }}">
                 </div>
                 @if($value[1] == "edit")
                 <div class="col">
@@ -72,7 +67,7 @@
             </div>
             <div class="form-row mt-4">
                 <div class="col">
-                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
+                    <input id="submit-product" class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
                 </div>
                 <div class="col">
                     <a class="btn btn-block btn-outline-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>

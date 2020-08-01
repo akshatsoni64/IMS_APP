@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <link rel="icon" href="cylinder.png">
+    <link rel="icon" href="{{ asset('img/cylinder.png') }}">
 
     <!-- <title>
         {{ config('app.name', 'IMS') }} {{ (Auth::check()) ? '| '.Auth::user()->name : '' }}
@@ -52,8 +52,10 @@
                 @endif
                     <h2 align="center">
                         @if(Auth::check())
-                            @if($value[0] == "stock" || $value[0] == "home")
+                            @if($value[0] == "home")
                                 {{ Auth::user()->name.' | '.Str::title($value[0]) }}
+                            @elseif($value[0] == "stock")
+                                {{ Auth::user()->name.' | Opening '.Str::title($value[0]) }}
                             @else
                                 {{ Auth::user()->name.' | '.Str::title($value[0]).'s' }}
                             @endif
@@ -82,64 +84,76 @@
             @yield('content')
         </div>
 
-        @if($value[0]!=="home" && $value[0]!=="login" && $value[0]!=="register" && $value[0]!=="report")
-            <div class="mb-5 mr-4" style="position:fixed;bottom:0;right:0">
-                @if($value[0] === "transaction")
+        <div class="mb-5 mr-4" style="position:fixed;bottom:0;right:0">
+            @if($value[0] == "home")
+                <a target="_blank" href="{{ route('dashboard_summary')}}">
                     <button 
                         type="button"
-                        title="Print" 
-                        class="shadow-lg btn btn-dark text-info rounded-circle"  
-                        target="_blank"
-                        data-toggle="modal" data-target="#report-field-modal"
-                    >
-                        <i class="fa fa-print"></i>
-                    </button>
-                @endif
-                <button 
-                    id="toggle-add-form"                    
-                    title="Add {{ Str::title($value[0]) }}" 
-                    class="shadow-lg btn btn-dark text-primary rounded-circle ml-1" 
-                >
-                    <i class="fa fa-plus"></i>
-                </button>
-            </div>
-        @endif
-        @if($value[0] == "report" || $value[0] == "home")
-            <div class="mb-5 mr-4" style="position:fixed;bottom:0;right:0">
-                @if($value[0] == "report")
-                    <button 
-                        type="button"
-                        onclick="
-                            $('#report-form').attr('action',`{{ route('getpdf') }}`);
-                            $('#report-form').attr('target','_blank');
-                            $('#report-form').submit();
-                        "
                         title="Print Report" 
                         class="shadow-lg btn btn-dark text-info rounded-circle"  
                     >
                         <i class="fa fa-print"></i>
                     </button>
-                    <button 
-                        type="button"
-                        id="toggle-reportform"
-                        title="Toggle Report Form" 
-                        class="shadow-lg btn btn-dark text-white rounded-circle"  
-                    >
-                        <i class="fa fa-wpforms"></i>
-                    </button>
-                @elseif($value[0] == "home")
-                    <a target="_blank" href="{{ route('dashboard_summary')}}">
-                        <button 
-                            type="button"
-                            title="Print Report" 
-                            class="shadow-lg btn btn-dark text-info rounded-circle"  
-                        >
-                            <i class="fa fa-print"></i>
-                        </button>
-                    </a>
-                @endif
-            </div>
-        @endif
+                </a>
+            @elseif($value[0] == "customer" || $value[0] == "product")
+                <button 
+                    id="toggle-add-form"                    
+                    title="Add {{ Str::title($value[0]) }}" 
+                    class="shadow-lg btn btn-dark text-primary rounded-circle ml-1" 
+                    {{ $value[1] == "edit" ? 'disabled' : '' }}
+                >
+                    <i class="fa fa-plus"></i>
+                </button>
+            @elseif($value[0] == "transaction")
+                <button 
+                    id="toggle-add-form"                    
+                    title="Add {{ Str::title($value[0]) }}" 
+                    class="shadow-lg btn btn-dark text-primary rounded-circle ml-1" 
+                    {{ $value[1] == "edit" ? 'disabled' : '' }}
+                >
+                    <i class="fa fa-plus"></i>
+                </button>
+                <button 
+                    type="button"
+                    title="Print" 
+                    class="shadow-lg btn btn-dark text-info rounded-circle"  
+                    target="_blank"
+                    data-toggle="modal" data-target="#report-field-modal"
+                >
+                    <i class="fa fa-print"></i>
+                </button>
+            @elseif($value[0] == "stock")
+                <button 
+                    id="toggle-add-form"                    
+                    title="Add {{ Str::title($value[0]) }}" 
+                    class="shadow-lg btn btn-dark text-primary rounded-circle ml-1" 
+                    {{ $value[1] == "edit" ? 'disabled' : '' }}
+                >
+                    <i class="fa fa-plus"></i>
+                </button>
+            @elseif($value[0] == "report")
+                <button 
+                    type="button"
+                    onclick="
+                        $('#report-form').attr('action',`{{ route('getpdf') }}`);
+                        $('#report-form').attr('target','_blank');
+                        $('#report-form').submit();
+                    "
+                    title="Print Report" 
+                    class="shadow-lg btn btn-dark text-info rounded-circle"  
+                >
+                    <i class="fa fa-print"></i>
+                </button>
+                <button 
+                    type="button"
+                    id="toggle-reportform"
+                    title="Toggle Report Form" 
+                    class="shadow-lg btn btn-dark text-white rounded-circle"  
+                >
+                    <i class="fa fa-wpforms"></i>
+                </button>
+            @endif
+        </div>
 
         <div class="text-right text-white fixed-bottom bg-dark">
             Designed by VINKS Sevices LLP &nbsp; 

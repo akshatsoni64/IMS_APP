@@ -4,6 +4,12 @@
 @section('content')
 <div class="col">
     <div class="px-3">
+
+        <!-- <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Error:</strong> Invalid Operation
+        </div> -->
+        
         @php($route=Request::route()->getName())
         @php( $value=explode('.',$route) ) 
         <!-- <h4 align="center">
@@ -15,7 +21,7 @@
             @if($value[1] != "edit")
             @endif
             @if($value[1] == "edit")
-                <form action="{{ route('transaction.update', $id) }}" class="p-4 border" method="POST">
+                <form id="{{$value[0]}}-form-div" action="{{ route('transaction.update', $id) }}" class="p-4 border" method="POST">
                     @method('PUT')
             @else
                 <form id="date-form-div" style='display:block' action="{{ route('transaction.index') }}" class="p-4 border" method="GET">
@@ -46,7 +52,7 @@
                         </div>
                     </div>
                 </form>
-                <form id="form-div" style='display:none' action="{{ route('transaction.store') }}" class="p-4 border" method="POST">
+                <form id="{{$value[0]}}-form-div" style='display:none' action="{{ route('transaction.store') }}" class="p-4 border" method="POST">
             @endif
                 @csrf
                 <div class="form-row">
@@ -94,11 +100,11 @@
                     </div>
                     <div class="col">
                         <label>Issued Quantity*</label>
-                        <input class="form-control" value="{{ $formdata->issue ?? '' }}" name="issue" type="number" placeholder="Issued Quantity" max=999 required>
+                        <input class="form-control" value="{{ $formdata->issue ?? '0' }}" name="issue" id="t_issue" type="number" placeholder="Issued Quantity" max=999 required>
                     </div>
                     <div class="col">
                         <label>Received Quantity*</label>
-                        <input class="form-control" value="{{ $formdata->receive ?? '0' }}" name="receive" type="number" placeholder="Received Quantity" max=999 required>
+                        <input class="form-control" value="{{ $formdata->receive ?? '0' }}" name="receive" id="t_receive" type="number" placeholder="Received Quantity" max=999 required>
                     </div>
                 </div>
                 <div class="form-row mt-2">
@@ -135,8 +141,8 @@
                     <div class="form-row">
                         <div class="col-xl-4">
                             <select name="pid" class="custom-select" required>
-                                <option selected disabled value="">Product Name</option>
-                                <option value="all">All</option>
+                                <option disabled value="">Product Name</option>
+                                <option selected value="all">All</option>
                                 @foreach($prod_data as $row)
                                     <option value="{{ $row->id }}">{{$row->name }}</option>
                                 @endforeach

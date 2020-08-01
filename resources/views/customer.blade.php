@@ -12,21 +12,16 @@
         </h4> -->
 
         @if($value[1] == "edit")
-            <form action="{{ route('customer.update', $id) }}" method="POST" class="p-4 border" id="real-form">
-            @method('PUT')            
-        @else  
-            <!-- <div >      
-                <form action="#" id="name-form">
-                    <label for="">Customer Name</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="name_name" placeholder="Customer Name" required autofocus>
-                        <div class="input-group-addon">
-                            <button type="submit" class="btn btn-outline-primary">&#10133;</button>
-                        </div>
-                    </div>
-                </form>
-            </div> -->
-            <form id="form-div" style="display:none" action="{{ route('customer.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
+            <form id="{{$value[0]}}-form-div" action="{{ route('customer.update', $id) }}" method="POST" class="p-4 border" id="real-form">
+            @method('PUT')
+            <div id="warn-div" style="display:none">
+                <div class="alert alert-warning alert-dismissible fade show">
+                    <!-- <button type="button" class="close" data-dismiss="alert">&times;</button> -->
+                    <strong>Warning:</strong> {{ Str::title($value[0]) }} will be deleted only if no transactions exists for this!
+                </div>
+            </div>         
+        @else 
+            <form id="{{$value[0]}}-form-div" style="display:none" action="{{ route('customer.store') }}" method="POST" class="p-4 border" id="real-form" style="display:none">
         @endif
             @csrf
             <div class="form-row">
@@ -36,7 +31,7 @@
                 </div>
                 <div class="col-xl-4">
                     <label for="name">Customer Name*</label>
-                    <input class="form-control" value="{{ $formdata->name ?? '' }}" name="name" id="real_name" type="text" placeholder="Customer Name" required>
+                    <input class="form-control" value="{{ $formdata->name ?? '' }}" name="name" id="c_name" type="text" placeholder="Customer Name" required>
                 </div>
                 <div class="col-xl-6">
                     <label for="org_name">Organization Name</label>
@@ -45,24 +40,24 @@
             </div>
             <div class="form-row mt-2">
                 <div class="col">
-                <label for="email">Email</label>
+                    <label for="email">Email</label>
                     <input class="form-control" value="{{ $formdata->email ?? '' }}"  name="email"  type="email" placeholder="Email">
                 </div>
                 <div class="col">
                     <label for="mobile">Mobile Number*</label>
-                    <input class="form-control" value="{{ $formdata->mobile ?? '' }}" name="mobile" type="number" placeholder="Mobile Number" min="1111111111" max="9999999999" required>
+                    <input id="c_mobile" class="form-control" value="{{ $formdata->mobile ?? '' }}" name="mobile" type="number" placeholder="Mobile Number" min="1111111111" max="9999999999" required>
                 </div>
                 <div class="col">
-                    <label class="" for="created_at">Registration Date*</label>
+                    <label for="created_at">Registration Date*</label>
                     <input class="form-control" value="{{ $formdata->created_at ?? date('Y-m-d') }}" name="created_at" type="date" title="Registration Date" max="{{ date('Y-m-d') }}" required>
                 </div>
                 <div class="col" id="end_date-input" style="display:none">
-                    <label class="" for="end_date">Termination Date</label>
-                    <input class="form-control" value="{{ $formdata->end_date ?? '' }}" name="end_date" type="date" title="Termination Date" max="{{ date('Y-m-d') }}">
+                    <label for="end_date">Termination Date*</label>
+                    <input class="form-control" value="{{ $formdata->end_date ?? date('Y-m-d') }}" name="end_date" id="end_date" type="date" title="Termination Date" max="{{ date('Y-m-d') }}">
                 </div>
                 @if($value[1] == "edit")
                 <div class="col-xl-2">
-                    <label class="" for="active">Service Status</label>
+                    <label for="active">Service Status</label>
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="active" name="active" checked>
                         <label class="custom-control-label" for="active"></label>
@@ -80,7 +75,7 @@
             </div> -->
             <div class="form-row mt-4">
                 <div class="col">
-                    <input class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
+                    <input id="submit-customer" class="btn btn-block {{ ($value[1] == 'edit') ? 'btn-outline-primary' : 'btn-outline-success' }}" type="submit" value="{{ ($value[1] == 'edit') ? 'Update' : 'Submit' }}">
                 </div>
                 <div class="col">
                     <a class="btn btn-block btn-outline-danger" type="button" href="{{ route($value[0].'.index') }}">Cancel</a>

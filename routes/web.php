@@ -23,6 +23,8 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/fetch_id', 'HomeController@fetch_id')->name('getid');
+Route::get('/v_cname', 'HomeController@validate_cname')->name('v_cname');
+Route::get('/v_pname', 'HomeController@validate_pname')->name('v_pname');
 Route::get('/get_prod/{id}', 'HomeController@get_prod')->name('getprod');
 Route::get('/dashboard-report', 'HomeController@dashboard_summary')->name('dashboard_summary');
 Route::get('/report', 'HomeController@report')->name('report');

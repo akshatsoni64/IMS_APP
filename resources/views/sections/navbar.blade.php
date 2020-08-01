@@ -31,7 +31,7 @@
             </div>
             <div class="mb-3 card bg-light text-white text-center border border-primary">
                 <h5 class="pt-2">                
-                    <a class="text-dark" href="{{ route('stock.index') }}">Opening Stock</a>
+                    <a class="text-dark" href="{{ route('stock.index') }}">Customer Opening</a>
                 </h5>
             </div>
         </div>        

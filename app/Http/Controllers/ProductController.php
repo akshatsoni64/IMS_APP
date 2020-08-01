@@ -25,7 +25,7 @@ class ProductController extends Controller
      */
     public function index()
     {        
-        $data = Product::select('id','name as ProductName')
+        $data = Product::select('id','name as Product Name', 'quantity as Opening Stock')
         ->where('active','1')
         ->orderBy('id','desc')
         ->get();
@@ -78,7 +78,7 @@ class ProductController extends Controller
     public function edit($id)
     {
         // error_log('Edit: '.$id);
-        $data = Product::select('id','name as ProductName')
+        $data = Product::select('id','name as Product Name', 'quantity as Opening Stock')
         ->where('active','1')
         ->orderBy('id','desc')
         ->get();
@@ -97,9 +97,23 @@ class ProductController extends Controller
     {
         unset($request['_token']);
         unset($request['_method']);
-        ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
+        // ($request->active == "on") ? ($request['active']='1') : ($request['active']='0'); // Set active status by translating checbox value
+        if($request->active == "on"){
+            $count = DB::select('SELECT COUNT(*) AS count FROM transactions WHERE pid = ?',[$id]);
+            if($count[0]->count > 0){
+                echo "Failed";
+                $request['active']='1';
+            }
+            else{
+                $res = Product::where('id',$id)->update(['active' => '0']); //Update the active status
+                $res = Product::where('id',$id)->update(['end_date' => \DB::raw('now()')]); //Update the end_date
+                $request['active']='0';
+            }
+        }
+        else{
+            $request['active']='1';
+        }
         $res = Product::find($id)->update($request->all());
-        // error_log($res);
 
         return \Redirect::route('product.index');
     }

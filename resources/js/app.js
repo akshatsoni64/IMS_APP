@@ -3,8 +3,6 @@ const { get } = require('lodash');
 require('./bootstrap');
 
 $(document).ready(function(){
-
-    // $('[data-toggle="tooltip"]').tooltip();
     
     if((document.URL).search("edit") < 0){
         $.ajax({
@@ -31,20 +29,23 @@ $(document).ready(function(){
     });
     
     $("#toggle-add-form").click(function(){
-        var css = $("#form-div").css("display");
+        var css = $("#"+document.URL.split("/")[3]+"-form-div").css("display");
         var title = $("#toggle-add-form").attr("title").split(" ");
         if(css === "none"){
-            $("#form-div").css("display","block");
+            $("#"+document.URL.split("/")[3]+"-form-div").css("display","block");
+            $("#load-stock-div").css("display","none");
             $("#date-form-div").css("display","none");
             $("#toggle-add-form").html("<i class='fa fa-times text-danger'></i>");
             $("#toggle-add-form").attr("title","Close "+title[1]+" Form");
         }
         else{
-            $("#form-div").css("display","none");
+            $("#"+document.URL.split("/")[3]+"-form-div").css("display","none");
+            $("#load-stock-div").css("display","block");
             $("#date-form-div").css("display","block");
             $("#toggle-add-form").html("<i class='fa fa-plus'></i>");
             $("#toggle-add-form").attr("title","Add "+title[1]);
         }
+        $("#form-div input:visible, #form-div select:visible").first().focus()
     });
     
     $("#cust_data").change(function(){
@@ -63,7 +64,6 @@ $(document).ready(function(){
                     options += "<option value='all'>All</option>";
                     $.each(data, function(index, value){
                         options += "<option value="+value.id+">"+value.name+"</option>";
-                        // Set the options value with the response from the get_prod API
                     });
                 }
                 $("#product-list").html(options);
@@ -81,7 +81,6 @@ $(document).ready(function(){
         var str = this.id;
         var arr = str.split('-');
         var url = arr[1]+'/'+arr[2];
-        // console.log(url);
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -92,8 +91,7 @@ $(document).ready(function(){
             type:'DELETE',
             success:function(data){
                 if(data == "Failed"){
-                    // console.log(data);
-                    alert("Transactions are there, Can't delete this product!")
+                    alert("Transactions are there, Can't delete!")
                 }
                 else{
                     location.reload();
@@ -104,6 +102,9 @@ $(document).ready(function(){
     });
 
     $("#active").click(function(){
+        var active = $("#active")[0].checked;
+        $("#end_date").attr("required",!active);
+        $("#warn-div").css("display",(!active) ? "block" : "none");
         var css = $("#end_date-input").css("display");
         if(css === "block"){
             $("#end_date-input").css("display","none");
@@ -122,24 +123,7 @@ $(document).ready(function(){
         }
     });
 
-    // $("#report").click(function(){
-    //     if($("#report-div").css("display") === "none"){
-    //         $("#report-div").css("display","block");
-    //     }
-    //     else{
-    //         $("#report-div").css("display","none");
-    //     }
-    // });
-
-    $("#name-form").submit(function(e){
-        e.preventDefault();
-        $("#real_name").val($("#name_name").val());
-        $("#name-form").css('display','none');
-        $("#real-form").css('display','block');
-    });
-
     $("#stock-customer").change(function(){
-        console.log('stock-customer'+$(this).val());
         var val = $(this).val();
         var options = "<option selected disabled value=''>Product Name</option>";
         $.ajax({
@@ -164,4 +148,105 @@ $(document).ready(function(){
             $("#report-form").css("display","none");
         }
     });
+/*
+    $("#submit-customer").click(function(){
+        
+        $("#submit-customer").attr("disabled",true);
+        var cname = $("#c_name").val();
+        var c_mobile = $("#c_mobile").val();
+        var cust_id = $("#cust_id").val();
+
+        $.ajax({
+            url:"/v_cname",
+            type:"GET",
+            data:{'cname': cname, "cust_id": cust_id, 'c_mobile': c_mobile},
+            success:function(data){
+                if(data == "Success"){
+                    $("#customer-form-div").submit();
+                }
+                else{
+                    alert("Duplicate Entry for Customer!");
+                }
+            }
+        });
+    });
+*/
+    $("#customer-form-div").submit(function(e){
+        e.preventDefault();
+        
+        // $("#submit-customer").attr("disabled",true);
+        var cname = $("#c_name").val();
+        var c_mobile = $("#c_mobile").val();
+        var cust_id = $("#cust_id").val();        
+
+        $.ajax({
+            context: this,
+            url:"/v_cname",
+            type:"GET",
+            data:{'cname': cname, "cust_id": cust_id, 'c_mobile': c_mobile},
+            success:function(data){
+                if(data != "Success"){
+                    alert(data+": Duplicate Entry for Customer!");
+                }
+                else{
+                    this.submit();
+                }
+            }
+        });
+    });
+
+    $("#product-form-div").submit(function(e){
+        e.preventDefault();
+
+        var pname = $("#p_name").val();
+        var prod_id = $("#prod_id").val();
+
+        $.ajax({
+            context:this,
+            url:"/v_pname",
+            type:"GET",
+            data:{'pname': pname, "prod_id": prod_id},
+            success:function(data){
+                console.log(data);
+                if(data != "Success"){
+                    alert(data+": Duplicate Entry for Product!");
+                }
+                else{
+                    this.submit();
+                }
+            }
+        });
+    });
+/*
+    $("#submit-product").click(function(){
+
+        var pname = $("#p_name").val();
+        var prod_id = $("#prod_id").val();
+
+        $.ajax({
+            url:"/v_pname",
+            type:"GET",
+            data:{'pname': pname, "prod_id": prod_id},
+            success:function(data){
+                console.log(data);
+                if(data == "Success"){
+                    $("#product-form-div").submit();
+                }
+                else{
+                    alert("Duplicate Product Name!");
+                }
+            }
+        });
+    });
+ */   
+    $("#transaction-form-div").submit(function(e){
+        var is = Number($("#t_issue").val());
+        var re = Number($("#t_receive").val());
+        var sum = (is+re)
+        if(sum <= 0){
+            alert("Issue & Receive both can't be 0!");
+            e.preventDefault();
+        }
+    });
+    
 });
